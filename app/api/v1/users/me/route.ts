@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     return apiError(
       400,
       "INVALID_USERNAME",
-      "usernameは英数字とアンダースコア1〜30文字にしてください。",
+      "usernameは1〜30文字で、空白のみ・改行等の制御文字は使えません。",
     );
   }
   if (!isValidIconEmoji(iconEmoji)) {
@@ -111,7 +111,7 @@ export async function PATCH(request: Request) {
       return apiError(
         400,
         "INVALID_USERNAME",
-        "usernameは英数字とアンダースコア1〜30文字にしてください。",
+        "usernameは1〜30文字で、空白のみ・改行等の制御文字は使えません。",
       );
     }
     data.username = username;
