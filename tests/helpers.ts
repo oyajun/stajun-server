@@ -76,7 +76,7 @@ export async function cleanupTestData(): Promise<void> {
 /** bearerトークン付きの Request を組み立てる */
 export function apiRequest(
   method: string,
-  opts: { token?: string; body?: unknown } = {},
+  opts: { token?: string; body?: unknown; query?: Record<string, string> } = {},
 ): Request {
   const headers = new Headers();
   if (opts.token) headers.set("Authorization", `Bearer ${opts.token}`);
@@ -85,8 +85,14 @@ export function apiRequest(
     headers.set("Content-Type", "application/json");
     body = JSON.stringify(opts.body);
   }
-  // パスは実装が参照しないためダミーで固定
-  return new Request("http://test.local/api", { method, headers, body });
+  // パスは実装が参照しないためダミーで固定（query 指定時のみクエリを付与）
+  const url = new URL("http://test.local/api");
+  if (opts.query) {
+    for (const [k, v] of Object.entries(opts.query)) {
+      url.searchParams.set(k, v);
+    }
+  }
+  return new Request(url, { method, headers, body });
 }
 
 /** 動的ルートの ctx（params は Promise）を作る */
