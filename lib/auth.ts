@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP, bearer } from "better-auth/plugins";
 import { prisma } from "./prisma";
-import { sendOtpEmail } from "./onesignal";
+import { sendOtpEmail } from "./resend";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -34,6 +34,9 @@ export const auth = betterAuth({
         ]);
       },
     },
+  },
+  advanced: {
+    disableOriginCheck: true, // Required for native mobile clients (iOS/Android)
   },
   plugins: [
     emailOTP({
