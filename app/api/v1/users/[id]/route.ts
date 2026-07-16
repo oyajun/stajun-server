@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { apiError, requireOnboardedUser } from "@/lib/api";
+import { apiError, requireOnboardedUser, resolveUserIdParam } from "@/lib/api";
 
-/** GET /api/v1/users/:id — 他ユーザーの公開プロフィール取得（idで取得） */
+/** GET /api/v1/users/:id — 他ユーザーの公開プロフィール取得（idで取得・`me`可） */
 export async function GET(
   request: Request,
   ctx: RouteContext<"/api/v1/users/[id]">,
@@ -11,9 +11,10 @@ export async function GET(
   const { user } = authed;
 
   const { id } = await ctx.params;
+  const targetIdParam = resolveUserIdParam(id, user.id);
 
   const target = await prisma.user.findUnique({
-    where: { id },
+    where: { id: targetIdParam },
     select: {
       id: true,
       username: true,

@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
 export type SessionUser = NonNullable<Session>["user"];
@@ -42,6 +43,17 @@ export async function requireOnboardedUser(
   return result;
 }
 
+/** クエリ整数を安全にパースしてクランプする。未指定/不正は fallback。 */
+export function parseIntParam(
+  raw: string | null,
+  { fallback, min, max }: { fallback: number; min: number; max: number },
+): number {
+  if (raw === null) return fallback;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
 /** リクエストボディを JSON として読む。不正なら null。 */
 export async function readJson(request: Request): Promise<unknown | null> {
   try {
@@ -75,4 +87,94 @@ export function isValidIconEmoji(v: unknown): v is string {
   if (typeof v !== "string") return false;
   const len = [...v].length;
   return len >= 1 && len <= 8;
+}
+
+// 勉強時間（分）: 整数 1〜1440（=24時間）
+export const MINUTES_MIN = 1;
+export const MINUTES_MAX = 1440;
+export function isValidMinutes(v: unknown): v is number {
+  return (
+    typeof v === "number" &&
+    Number.isInteger(v) &&
+    v >= MINUTES_MIN &&
+    v <= MINUTES_MAX
+  );
+}
+
+// コメント: 任意。制御文字（改行等）不可・最大500文字。
+export const COMMENT_MAX = 500;
+export function isValidComment(v: unknown): v is string {
+  if (typeof v !== "string") return false;
+  if (CONTROL_CHARS_RE.test(v)) return false;
+  return [...v].length <= COMMENT_MAX;
+}
+
+// --- ユーザーid解決・要約 ---
+
+/** パスの :id を解決する。`"me"` は自分自身の id に読み替える。 */
+export function resolveUserIdParam(idParam: string, selfId: string): string {
+  return idParam === "me" ? selfId : idParam;
+}
+
+/**
+ * :id を解決し、公開対象（オンボーディング完了）のユーザーidを返す。
+ * `"me"` は自分。存在しない/未オンボーディング（username IS NULL）は null。
+ */
+export async function resolveOnboardedUserId(
+  idParam: string,
+  selfId: string,
+): Promise<string | null> {
+  const id = resolveUserIdParam(idParam, selfId);
+  // 自分は requireOnboardedUser 通過済みなので追加クエリ不要
+  if (id === selfId) return id;
+  const target = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, username: true },
+  });
+  if (!target || !target.username) return null;
+  return target.id;
+}
+
+export type UserRow = {
+  id: string;
+  username: string | null;
+  iconEmoji: string | null;
+  iconBackgroundColor: string | null;
+};
+
+/**
+ * ユーザー行に、閲覧者から見たフォロー状態と現在の学習状態を付与する。
+ * 入力の並び順を保持する（呼び出し側で必要ならさらにソートする）。
+ */
+export async function annotateUsers(viewerId: string, rows: UserRow[]) {
+  if (rows.length === 0) return [];
+  const ids = rows.map((r) => r.id);
+  const [follows, activeSessions] = await Promise.all([
+    prisma.follow.findMany({
+      where: { followerId: viewerId, followingId: { in: ids } },
+      select: { followingId: true },
+    }),
+    prisma.studySession.findMany({
+      where: { userId: { in: ids }, endedAt: null },
+      select: { userId: true, startedAt: true },
+    }),
+  ]);
+  const followingSet = new Set(follows.map((f) => f.followingId));
+  const studyingSince = new Map<string, Date>();
+  for (const s of activeSessions) {
+    const prev = studyingSince.get(s.userId);
+    if (!prev || s.startedAt > prev) studyingSince.set(s.userId, s.startedAt);
+  }
+  return rows.map((r) => {
+    const since = studyingSince.get(r.id) ?? null;
+    return {
+      id: r.id,
+      username: r.username,
+      iconEmoji: r.iconEmoji ?? null,
+      iconBackgroundColor: r.iconBackgroundColor ?? null,
+      isFollowing: followingSet.has(r.id),
+      isStudying: since !== null,
+      studyingSince: since,
+    };
+  });
 }

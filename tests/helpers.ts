@@ -68,6 +68,7 @@ export async function cleanupTestData(): Promise<void> {
     where: { OR: [{ followerId: { in: ids } }, { followingId: { in: ids } }] },
   });
   await prisma.studySession.deleteMany({ where: { userId: { in: ids } } });
+  await prisma.studyPost.deleteMany({ where: { userId: { in: ids } } });
   await prisma.session.deleteMany({ where: { userId: { in: ids } } });
   await prisma.account.deleteMany({ where: { userId: { in: ids } } });
   await prisma.user.deleteMany({ where: { id: { in: ids } } });

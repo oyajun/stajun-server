@@ -92,3 +92,13 @@ model StudySession {
   endedAt   DateTime?
   createdAt DateTime  @default(now())
 }
+
+model StudyPost {
+  id        String   @id @default(cuid())
+  userId    String
+  minutes   Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}

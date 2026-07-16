@@ -1,6 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
-import { apiError, requireOnboardedUser } from "@/lib/api";
+import { apiError, parseIntParam, requireOnboardedUser } from "@/lib/api";
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
@@ -12,19 +12,8 @@ const USER_SELECT = {
   iconBackgroundColor: true,
 } satisfies Prisma.UserSelect;
 
-/** クエリ整数を安全にパースしてクランプする。未指定/不正は fallback。 */
-function parseIntParam(
-  raw: string | null,
-  { fallback, min, max }: { fallback: number; min: number; max: number },
-): number {
-  if (raw === null) return fallback;
-  const n = Number.parseInt(raw, 10);
-  if (!Number.isFinite(n)) return fallback;
-  return Math.min(max, Math.max(min, n));
-}
-
 /**
- * GET /api/v1/users/search?q=<表示名>&limit=&offset= — 表示名（username）でユーザー検索。
+ * GET /api/v1/users?q=<表示名>&limit=&offset= — 表示名（username）でユーザー検索。
  * 完全一致（大文字小文字は無視）を先頭に、続けて部分一致（曖昧一致）を返す。
  * 各グループ内は username 昇順。自分自身とオンボーディング未完了ユーザーは除外。
  * limit（既定20・最大50）と offset（既定0）でページング。

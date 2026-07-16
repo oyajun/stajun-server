@@ -1,27 +1,21 @@
 import { prisma } from "@/lib/prisma";
-import { apiError, requireOnboardedUser } from "@/lib/api";
+import {
+  apiError,
+  requireOnboardedUser,
+  resolveOnboardedUserId,
+} from "@/lib/api";
 
-/** 公開対象（オンボーディング完了）のユーザーidかを検証し、存在すればidを返す */
-async function resolveTargetId(id: string) {
-  const target = await prisma.user.findUnique({
-    where: { id },
-    select: { id: true, username: true },
-  });
-  if (!target || !target.username) return null;
-  return target.id;
-}
-
-/** POST /api/v1/users/:id/follow — フォロー（冪等・承認制なし） */
-export async function POST(
+/** PUT /api/v1/follow/:id — :id をフォロー（冪等・承認制なし） */
+export async function PUT(
   request: Request,
-  ctx: RouteContext<"/api/v1/users/[id]/follow">,
+  ctx: RouteContext<"/api/v1/follow/[id]">,
 ) {
   const authed = await requireOnboardedUser(request);
   if (authed instanceof Response) return authed;
   const { user } = authed;
 
   const { id } = await ctx.params;
-  const targetId = await resolveTargetId(id);
+  const targetId = await resolveOnboardedUserId(id, user.id);
   if (!targetId) {
     return apiError(404, "USER_NOT_FOUND", "ユーザーが見つかりません。");
   }
@@ -41,17 +35,17 @@ export async function POST(
   return Response.json({ isFollowing: true });
 }
 
-/** DELETE /api/v1/users/:id/follow — フォロー解除（冪等） */
+/** DELETE /api/v1/follow/:id — :id をフォロー解除（冪等） */
 export async function DELETE(
   request: Request,
-  ctx: RouteContext<"/api/v1/users/[id]/follow">,
+  ctx: RouteContext<"/api/v1/follow/[id]">,
 ) {
   const authed = await requireOnboardedUser(request);
   if (authed instanceof Response) return authed;
   const { user } = authed;
 
   const { id } = await ctx.params;
-  const targetId = await resolveTargetId(id);
+  const targetId = await resolveOnboardedUserId(id, user.id);
   if (!targetId) {
     return apiError(404, "USER_NOT_FOUND", "ユーザーが見つかりません。");
   }

@@ -31,6 +31,7 @@ export const auth = betterAuth({
             where: { OR: [{ followerId: user.id }, { followingId: user.id }] },
           }),
           prisma.studySession.deleteMany({ where: { userId: user.id } }),
+          prisma.studyPost.deleteMany({ where: { userId: user.id } }),
         ]);
       },
     },
