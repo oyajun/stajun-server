@@ -9,6 +9,17 @@ export function apiError(status: number, code: string, message: string) {
   return Response.json({ error: { code, message } }, { status });
 }
 
+/** 勉強中とみなす最大経過時間。これを超えた StudySession は勉強中扱いしない。 */
+export const STUDYING_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * 「勉強中」判定に使う startedAt の下限を返す（これより新しければ勉強中）。
+ * 端末クラッシュ等で残った古い行を表示上握りつぶすためのしきい値。
+ */
+export function studyingSinceThreshold(now: Date = new Date()) {
+  return new Date(now.getTime() - STUDYING_MAX_AGE_MS);
+}
+
 /**
  * 認証必須。bearerトークン（Authorization: Bearer <token>）からセッションを解決する。
  * 未認証なら401 Response、認証済みなら { user } を返す。
@@ -155,16 +166,15 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
       select: { followingId: true },
     }),
     prisma.studySession.findMany({
-      where: { userId: { in: ids }, endedAt: null },
+      where: { userId: { in: ids }, startedAt: { gt: studyingSinceThreshold() } },
       select: { userId: true, startedAt: true },
     }),
   ]);
   const followingSet = new Set(follows.map((f) => f.followingId));
-  const studyingSince = new Map<string, Date>();
-  for (const s of activeSessions) {
-    const prev = studyingSince.get(s.userId);
-    if (!prev || s.startedAt > prev) studyingSince.set(s.userId, s.startedAt);
-  }
+  // StudySession は1ユーザー1行なので userId で一意にマップできる。
+  const studyingSince = new Map(
+    activeSessions.map((s) => [s.userId, s.startedAt]),
+  );
   return rows.map((r) => {
     const since = studyingSince.get(r.id) ?? null;
     return {

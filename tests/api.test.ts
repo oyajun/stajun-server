@@ -320,20 +320,23 @@ describe("フォロー（PUT/DELETE /follow/:id, GET /following/:id）", () => {
 });
 
 describe("学習セッション", () => {
-  it("start→409(二重)→me→feed→stop→404(再stop)の一連", async () => {
+  it("start→start(べき等・維持)→me→feed→stop→stop(べき等)の一連", async () => {
     const bob = await createUser({ username: "studier", iconEmoji: "🔥", iconBackgroundColor: "#FFCCBC" });
     const watcher = await createUser({ username: "watcher", iconEmoji: "👀", iconBackgroundColor: "#E1BEE7" });
     await follow.PUT(apiRequest("PUT", { token: watcher.token }), routeCtx({ id: bob.id }));
 
     const startRes = await ssStart.POST(apiRequest("POST", { token: bob.token }));
     const start = await readResponse(startRes);
-    expect(start.status).toBe(201);
-    expect(start.body.endedAt).toBeNull();
+    expect(start.status).toBe(200);
+    expect(start.body.startedAt).toBeTruthy();
+    expect(start.body.id).toBeUndefined();
+    expect(start.body.endedAt).toBeUndefined();
 
+    // 二重startはべき等：409にならず、startedAtは維持（上書きしない）。
     const dupRes = await ssStart.POST(apiRequest("POST", { token: bob.token }));
     const dup = await readResponse(dupRes);
-    expect(dup.status).toBe(409);
-    expect(dup.body.error.code).toBe("ALREADY_STUDYING");
+    expect(dup.status).toBe(200);
+    expect(dup.body.startedAt).toBe(start.body.startedAt);
 
     const meRes = await ssState.GET(
       apiRequest("GET", { token: bob.token }),
@@ -353,12 +356,39 @@ describe("学習セッション", () => {
     const stopRes = await ssStop.POST(apiRequest("POST", { token: bob.token }));
     const stop = await readResponse(stopRes);
     expect(stop.status).toBe(200);
-    expect(stop.body.endedAt).toBeTruthy();
+    expect(stop.body.isStudying).toBe(false);
 
+    // 再stopもべき等：404にならず成功。
     const stopAgainRes = await ssStop.POST(apiRequest("POST", { token: bob.token }));
     const stopAgain = await readResponse(stopAgainRes);
-    expect(stopAgain.status).toBe(404);
-    expect(stopAgain.body.error.code).toBe("NO_ACTIVE_SESSION");
+    expect(stopAgain.status).toBe(200);
+    expect(stopAgain.body.isStudying).toBe(false);
+  });
+
+  it("startedAtが24時間超の行は勉強中扱いされず、startで現在時刻にリセットされる", async () => {
+    const bob = await createUser({ username: "staler", iconEmoji: "🕰️", iconBackgroundColor: "#CFD8DC" });
+    // 25時間前に開始した古い行を直接作る。
+    const stale = new Date(Date.now() - 25 * 60 * 60 * 1000);
+    await prisma.studySession.create({ data: { userId: bob.id, startedAt: stale } });
+
+    // 判定は「24時間以内」なので勉強中扱いされない。
+    const staleStateRes = await ssState.GET(
+      apiRequest("GET", { token: bob.token }),
+      routeCtx({ id: "me" }),
+    );
+    expect((await readResponse(staleStateRes)).body.isStudying).toBe(false);
+
+    // startすると古いstartedAtは現在時刻に上書きされ、勉強中になる。
+    const startRes = await ssStart.POST(apiRequest("POST", { token: bob.token }));
+    const start = await readResponse(startRes);
+    expect(start.status).toBe(200);
+    expect(new Date(start.body.startedAt).getTime()).toBeGreaterThan(stale.getTime());
+
+    const freshStateRes = await ssState.GET(
+      apiRequest("GET", { token: bob.token }),
+      routeCtx({ id: "me" }),
+    );
+    expect((await readResponse(freshStateRes)).body.isStudying).toBe(true);
   });
 });
 

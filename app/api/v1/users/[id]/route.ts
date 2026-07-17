@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { apiError, requireOnboardedUser, resolveUserIdParam } from "@/lib/api";
+import {
+  apiError,
+  requireOnboardedUser,
+  resolveUserIdParam,
+  studyingSinceThreshold,
+} from "@/lib/api";
 
 /** GET /api/v1/users/:id — 他ユーザーの公開プロフィール取得（idで取得・`me`可） */
 export async function GET(
@@ -38,8 +43,7 @@ export async function GET(
       select: { id: true },
     }),
     prisma.studySession.findFirst({
-      where: { userId: target.id, endedAt: null },
-      orderBy: { startedAt: "desc" },
+      where: { userId: target.id, startedAt: { gt: studyingSinceThreshold() } },
       select: { startedAt: true },
     }),
   ]);
