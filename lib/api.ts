@@ -65,6 +65,165 @@ export function parseIntParam(
   return Math.min(max, Math.max(min, n));
 }
 
+// --- タイムゾーン・日付境界 ---
+
+/**
+ * クライアントから受け取るUTCオフセット（分）の許容範囲。
+ * 実在するタイムゾーンは UTC-12:00 〜 UTC+14:00 に収まる。
+ */
+const TZ_OFFSET_MIN_MINUTES = -12 * 60;
+const TZ_OFFSET_MAX_MINUTES = 14 * 60;
+const TZ_OFFSET_RE = /^([+-])(\d{2}):?(\d{2})$/;
+const YMD_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** ローカル日付（年・月1〜12・日）。UTCではなくクライアントのタイムゾーン上の日付。 */
+export type LocalDate = { year: number; month: number; day: number };
+
+/**
+ * `+09:00` 形式のUTCオフセットを分に変換する（日本なら `+09:00` → 540）。不正なら null。
+ * `+0900` / `Z` も受け付ける。またクエリ文字列で `+` が `%2B` にエンコードされず
+ * 空白としてデコードされた場合（`" 09:00"`）も救済する。
+ */
+export function parseTzOffset(raw: string | null): number | null {
+  if (raw === null) return null;
+  const normalized = raw.startsWith(" ") ? `+${raw.slice(1)}` : raw;
+  if (normalized === "Z" || normalized === "z") return 0;
+
+  const m = TZ_OFFSET_RE.exec(normalized);
+  if (!m) return null;
+  const [, sign, hh, mm] = m;
+  const hours = Number(hh);
+  const minutes = Number(mm);
+  if (minutes > 59) return null;
+
+  const offset = (sign === "-" ? -1 : 1) * (hours * 60 + minutes);
+  if (offset < TZ_OFFSET_MIN_MINUTES || offset > TZ_OFFSET_MAX_MINUTES) {
+    return null;
+  }
+  return offset;
+}
+
+/** `YYYY-MM-DD` をローカル日付としてパースする。実在しない日付（2月30日等）は null。 */
+export function parseLocalDate(raw: string | null): LocalDate | null {
+  if (raw === null) return null;
+  const m = YMD_RE.exec(raw);
+  if (!m) return null;
+  const [, y, mo, d] = m;
+  const date = { year: Number(y), month: Number(mo), day: Number(d) };
+  // Date.UTC は 2026-02-30 のような値を繰り上げてしまうため、往復させて検証する
+  const roundTrip = new Date(Date.UTC(date.year, date.month - 1, date.day));
+  if (
+    roundTrip.getUTCFullYear() !== date.year ||
+    roundTrip.getUTCMonth() + 1 !== date.month ||
+    roundTrip.getUTCDate() !== date.day
+  ) {
+    return null;
+  }
+  return date;
+}
+
+/** ローカル日付を `YYYY-MM-DD` に整形する。 */
+export function formatLocalDate({ year, month, day }: LocalDate): string {
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  return `${year}-${mm}-${dd}`;
+}
+
+/**
+ * ローカル日付の 0:00 に対応するUTC時刻を返す（日付の区切り）。
+ * `dayOffset` を渡すとその日数だけ後ろにずらす（翌日境界 = 排他的な上限に使う）。
+ */
+export function localDayStartUtc(
+  { year, month, day }: LocalDate,
+  tzOffsetMinutes: number,
+  dayOffset = 0,
+): Date {
+  const utcMidnight = Date.UTC(year, month - 1, day + dayOffset);
+  return new Date(utcMidnight - tzOffsetMinutes * 60_000);
+}
+
+// --- 統計のバケット単位 ---
+
+/** 統計グラフの集計単位。 */
+export type StatsUnit = "day" | "week" | "month" | "year";
+
+const STATS_UNITS: readonly string[] = ["day", "week", "month", "year"];
+
+export function isStatsUnit(v: string | null): v is StatsUnit {
+  return v !== null && STATS_UNITS.includes(v);
+}
+
+/** 年月日を実在する日付に正規化する（`2026-01-32` → `2026-02-01`）。 */
+function normalizeLocalDate(
+  year: number,
+  month: number,
+  day: number,
+): LocalDate {
+  const d = new Date(Date.UTC(year, month - 1, day));
+  return {
+    year: d.getUTCFullYear(),
+    month: d.getUTCMonth() + 1,
+    day: d.getUTCDate(),
+  };
+}
+
+/**
+ * その日付が属するバケットの開始日を返す。
+ * 週は **月曜始まり**（ISO 8601）。
+ */
+export function startOfBucket(date: LocalDate, unit: StatsUnit): LocalDate {
+  switch (unit) {
+    case "day":
+      return date;
+    case "week": {
+      // getUTCDay() は 0=日曜。月曜を0にして、その分だけ戻す
+      const dow = new Date(
+        Date.UTC(date.year, date.month - 1, date.day),
+      ).getUTCDay();
+      return normalizeLocalDate(date.year, date.month, date.day - ((dow + 6) % 7));
+    }
+    case "month":
+      return { year: date.year, month: date.month, day: 1 };
+    case "year":
+      return { year: date.year, month: 1, day: 1 };
+  }
+}
+
+/** バケット単位で n 個ぶん進めた日付を返す（負数で戻る）。 */
+export function addBuckets(
+  date: LocalDate,
+  unit: StatsUnit,
+  n: number,
+): LocalDate {
+  switch (unit) {
+    case "day":
+      return normalizeLocalDate(date.year, date.month, date.day + n);
+    case "week":
+      return normalizeLocalDate(date.year, date.month, date.day + n * 7);
+    case "month":
+      return normalizeLocalDate(date.year, date.month + n, date.day);
+    case "year":
+      return normalizeLocalDate(date.year + n, date.month, date.day);
+  }
+}
+
+/** ローカル日付の大小比較（a < b で負、a === b で0）。 */
+export function compareLocalDate(a: LocalDate, b: LocalDate): number {
+  return (
+    Date.UTC(a.year, a.month - 1, a.day) - Date.UTC(b.year, b.month - 1, b.day)
+  );
+}
+
+/** UTC時刻を、指定オフセットのタイムゾーンから見たローカル日付に変換する。 */
+export function toLocalDate(date: Date, tzOffsetMinutes: number): LocalDate {
+  const shifted = new Date(date.getTime() + tzOffsetMinutes * 60_000);
+  return {
+    year: shifted.getUTCFullYear(),
+    month: shifted.getUTCMonth() + 1,
+    day: shifted.getUTCDate(),
+  };
+}
+
 /** リクエストボディを JSON として読む。不正なら null。 */
 export async function readJson(request: Request): Promise<unknown | null> {
   try {

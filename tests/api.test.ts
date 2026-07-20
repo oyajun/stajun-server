@@ -19,6 +19,8 @@ import * as ssStop from "@/app/api/v1/study-sessions/stop/route";
 import * as ssState from "@/app/api/v1/study-sessions/[id]/route";
 import * as posts from "@/app/api/v1/posts/route";
 import * as postId from "@/app/api/v1/posts/[id]/route";
+import * as stats from "@/app/api/v1/stats/route";
+import * as statsSeries from "@/app/api/v1/stats/series/route";
 
 beforeAll(async () => {
   await cleanupTestData();
@@ -589,5 +591,243 @@ describe("アカウント削除（DELETE /users/me）", () => {
 
     const afterRes = await usersMe.GET(apiRequest("GET", { token: u.token }));
     expect((await readResponse(afterRes)).status).toBe(401);
+  });
+});
+
+describe("勉強時間の統計（/stats）", () => {
+  const JST = "+09:00";
+
+  /** createdAt を明示して投稿を作る（境界テスト用） */
+  async function seedPost(userId: string, minutes: number, createdAt: Date) {
+    await prisma.studyPost.create({ data: { userId, minutes, createdAt } });
+  }
+
+  /** 実装とは別経路で「そのtzでの今日の0:00」を求める */
+  function jstDayStart(now: Date): Date {
+    const ymd = new Date(now.getTime() + 9 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    return new Date(`${ymd}T00:00:00+09:00`);
+  }
+
+  it("今日の区切りはtzで決まる（境界の直前は today に含めない）", async () => {
+    const u = await createUser({ username: "stats-today", iconEmoji: "📈", iconBackgroundColor: "#C8E6C9" });
+    const dayStart = jstDayStart(new Date());
+
+    await seedPost(u.id, 30, new Date(dayStart.getTime() + 60_000)); // JST今日
+    await seedPost(u.id, 10, new Date(dayStart.getTime() - 60_000)); // JST昨日
+
+    const res = await stats.GET(
+      apiRequest("GET", { token: u.token, query: { userId: "me", tz: JST } }),
+    );
+    const { status, body } = await readResponse(res);
+    expect(status).toBe(200);
+    expect(body.todayMinutes).toBe(30);
+    expect(body.totalMinutes).toBe(40);
+    // 返す `today` はJST上の日付（dayStart から9時間ずらしたUTC表記と一致する）
+    const expectedToday = new Date(dayStart.getTime() + 9 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    expect(body.today).toBe(expectedToday);
+    expect(body.monthStart).toBe(`${expectedToday.slice(0, 7)}-01`);
+  });
+
+  it("今月は1日〜今日（前月末の投稿は含めない）", async () => {
+    const u = await createUser({ username: "stats-month", iconEmoji: "🗓️", iconBackgroundColor: "#B3E5FC" });
+    const nowJst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    const ym = nowJst.toISOString().slice(0, 7);
+    const monthStart = new Date(`${ym}-01T00:00:00+09:00`);
+
+    await seedPost(u.id, 25, new Date(monthStart.getTime() + 60_000)); // 今月1日
+    await seedPost(u.id, 7, new Date(monthStart.getTime() - 60_000)); // 前月末日
+
+    const res = await stats.GET(
+      apiRequest("GET", { token: u.token, query: { userId: "me", tz: JST } }),
+    );
+    const { status, body } = await readResponse(res);
+    expect(status).toBe(200);
+    expect(body.monthMinutes).toBe(25);
+    expect(body.totalMinutes).toBe(32);
+    expect(body.monthStart).toBe(`${ym}-01`);
+  });
+
+  it("今週は月曜始まり（前週日曜の投稿は含めない）", async () => {
+    const u = await createUser({ username: "stats-week", iconEmoji: "🗓️", iconBackgroundColor: "#B2DFDB" });
+    const dayStart = jstDayStart(new Date());
+    // JSTでの今日の曜日から、今週月曜0:00を実装とは別経路で求める
+    const jstDow = new Date(dayStart.getTime() + 9 * 60 * 60 * 1000).getUTCDay();
+    const weekStart = new Date(
+      dayStart.getTime() - ((jstDow + 6) % 7) * 24 * 60 * 60 * 1000,
+    );
+
+    await seedPost(u.id, 40, new Date(weekStart.getTime() + 60_000)); // 今週月曜
+    await seedPost(u.id, 5, new Date(weekStart.getTime() - 60_000)); // 前週日曜
+
+    const res = await stats.GET(
+      apiRequest("GET", { token: u.token, query: { userId: "me", tz: JST } }),
+    );
+    const { status, body } = await readResponse(res);
+    expect(status).toBe(200);
+    expect(body.weekMinutes).toBe(40);
+    expect(body.totalMinutes).toBe(45);
+    // weekStart は必ず月曜
+    expect(new Date(`${body.weekStart}T00:00:00Z`).getUTCDay()).toBe(1);
+  });
+
+  it("unit=day: tzで日付が変わる（投稿の無い日は0埋め）", async () => {
+    const u = await createUser({ username: "stats-daily", iconEmoji: "📊", iconBackgroundColor: "#FFE0B2" });
+    // UTCでは 2026-03-01、JST(+09:00)では 2026-03-02 00:30 になる投稿
+    await seedPost(u.id, 60, new Date("2026-03-01T15:30:00Z"));
+
+    const query = { userId: "me", unit: "day", from: "2026-02-28", to: "2026-03-03" };
+
+    const jstRes = await statsSeries.GET(
+      apiRequest("GET", { token: u.token, query: { ...query, tz: JST } }),
+    );
+    const jst = await readResponse(jstRes);
+    expect(jst.status).toBe(200);
+    expect(jst.body.buckets).toEqual([
+      { start: "2026-02-28", end: "2026-02-28", minutes: 0 },
+      { start: "2026-03-01", end: "2026-03-01", minutes: 0 },
+      { start: "2026-03-02", end: "2026-03-02", minutes: 60 },
+      { start: "2026-03-03", end: "2026-03-03", minutes: 0 },
+    ]);
+    expect(jst.body.totalMinutes).toBe(60);
+
+    const utcRes = await statsSeries.GET(
+      apiRequest("GET", { token: u.token, query: { ...query, tz: "+00:00" } }),
+    );
+    const utc = await readResponse(utcRes);
+    expect(utc.status).toBe(200);
+    expect(utc.body.buckets.find((b: any) => b.start === "2026-03-01").minutes).toBe(60);
+    expect(utc.body.buckets.find((b: any) => b.start === "2026-03-02").minutes).toBe(0);
+  });
+
+  it("unit=week: 月曜始まりで、指定日を含む週まで外側に広げる", async () => {
+    const u = await createUser({ username: "stats-series-w", iconEmoji: "📅", iconBackgroundColor: "#C5CAE9" });
+    // 2026-03-04(水) JST と 2026-03-09(月) JST の投稿 → 別々の週
+    await seedPost(u.id, 30, new Date("2026-03-03T15:30:00Z")); // JST 03-04
+    await seedPost(u.id, 45, new Date("2026-03-08T15:30:00Z")); // JST 03-09
+
+    const res = await statsSeries.GET(
+      apiRequest("GET", {
+        token: u.token,
+        // 週の途中を指定しても、その週の月曜〜日曜が返る
+        query: { userId: "me", tz: JST, unit: "week", from: "2026-03-04", to: "2026-03-10" },
+      }),
+    );
+    const { status, body } = await readResponse(res);
+    expect(status).toBe(200);
+    expect(body.buckets).toEqual([
+      { start: "2026-03-02", end: "2026-03-08", minutes: 30 },
+      { start: "2026-03-09", end: "2026-03-15", minutes: 45 },
+    ]);
+  });
+
+  it("unit=month / year: 月末・年末で正しく区切られる", async () => {
+    const u = await createUser({ username: "stats-series-m", iconEmoji: "📆", iconBackgroundColor: "#F0F4C3" });
+    await seedPost(u.id, 10, new Date("2025-12-31T15:30:00Z")); // JST 2026-01-01
+    await seedPost(u.id, 20, new Date("2026-02-28T10:00:00Z")); // JST 2026-02-28
+
+    const monthRes = await statsSeries.GET(
+      apiRequest("GET", {
+        token: u.token,
+        query: { userId: "me", tz: JST, unit: "month", from: "2026-01-15", to: "2026-03-05" },
+      }),
+    );
+    const month = await readResponse(monthRes);
+    expect(month.status).toBe(200);
+    expect(month.body.buckets).toEqual([
+      { start: "2026-01-01", end: "2026-01-31", minutes: 10 },
+      { start: "2026-02-01", end: "2026-02-28", minutes: 20 },
+      { start: "2026-03-01", end: "2026-03-31", minutes: 0 },
+    ]);
+
+    const yearRes = await statsSeries.GET(
+      apiRequest("GET", {
+        token: u.token,
+        query: { userId: "me", tz: JST, unit: "year", from: "2025-06-01", to: "2026-07-20" },
+      }),
+    );
+    const year = await readResponse(yearRes);
+    expect(year.status).toBe(200);
+    expect(year.body.buckets).toEqual([
+      { start: "2025-01-01", end: "2025-12-31", minutes: 0 },
+      // JST では 2025-12-31T15:30Z は 2026年の投稿になる
+      { start: "2026-01-01", end: "2026-12-31", minutes: 30 },
+    ]);
+  });
+
+  it("他ユーザーの統計も取得できる（投稿と同じく公開）", async () => {
+    const owner = await createUser({ username: "stats-owner", iconEmoji: "🐣", iconBackgroundColor: "#F8BBD0" });
+    const viewer = await createUser({ username: "stats-viewer", iconEmoji: "👀", iconBackgroundColor: "#D1C4E9" });
+    await seedPost(owner.id, 15, new Date());
+
+    const res = await stats.GET(
+      apiRequest("GET", { token: viewer.token, query: { userId: owner.id, tz: JST } }),
+    );
+    const { status, body } = await readResponse(res);
+    expect(status).toBe(200);
+    expect(body.userId).toBe(owner.id);
+    expect(body.totalMinutes).toBe(15);
+  });
+
+  it("エンコードされていない`+`（空白にデコードされる）も受け付ける", async () => {
+    const u = await createUser({ username: "stats-plus", iconEmoji: "➕", iconBackgroundColor: "#DCEDC8" });
+    const headers = new Headers({ Authorization: `Bearer ${u.token}` });
+    // `+09:00` を素で入れると URL 上は空白として解釈される
+    const req = new Request("http://test.local/api?userId=me&tz=+09:00", { headers });
+
+    const { status } = await readResponse(await stats.GET(req));
+    expect(status).toBe(200);
+  });
+
+  it("不正なパラメータは400、存在しないユーザーは404", async () => {
+    const u = await createUser({ username: "stats-bad", iconEmoji: "🚫", iconBackgroundColor: "#FFCDD2" });
+    const token = u.token;
+
+    const noTz = await stats.GET(apiRequest("GET", { token, query: { userId: "me" } }));
+    expect((await readResponse(noTz)).body.error.code).toBe("INVALID_TZ");
+
+    const badTz = await stats.GET(
+      apiRequest("GET", { token, query: { userId: "me", tz: "Asia/Tokyo" } }),
+    );
+    expect((await readResponse(badTz)).body.error.code).toBe("INVALID_TZ");
+
+    const noUser = await stats.GET(apiRequest("GET", { token, query: { tz: JST } }));
+    expect((await readResponse(noUser)).body.error.code).toBe("INVALID_USER_ID");
+
+    const notFound = await stats.GET(
+      apiRequest("GET", { token, query: { userId: "no-such-user", tz: JST } }),
+    );
+    expect((await readResponse(notFound)).status).toBe(404);
+
+    const badUnit = await statsSeries.GET(
+      apiRequest("GET", { token, query: { userId: "me", tz: JST, unit: "hour", from: "2026-03-01", to: "2026-03-02" } }),
+    );
+    expect((await readResponse(badUnit)).body.error.code).toBe("INVALID_UNIT");
+
+    const badDate = await statsSeries.GET(
+      apiRequest("GET", { token, query: { userId: "me", tz: JST, unit: "day", from: "2026-02-30", to: "2026-03-01" } }),
+    );
+    expect((await readResponse(badDate)).body.error.code).toBe("INVALID_RANGE");
+
+    const reversed = await statsSeries.GET(
+      apiRequest("GET", { token, query: { userId: "me", tz: JST, unit: "day", from: "2026-03-05", to: "2026-03-01" } }),
+    );
+    expect((await readResponse(reversed)).body.error.code).toBe("INVALID_RANGE");
+
+    const tooLong = await statsSeries.GET(
+      apiRequest("GET", { token, query: { userId: "me", tz: JST, unit: "day", from: "2025-01-01", to: "2026-12-31" } }),
+    );
+    expect((await readResponse(tooLong)).body.error.code).toBe("RANGE_TOO_LONG");
+
+    // 同じ期間でも unit=month なら24バケットなので通る
+    const okMonth = await statsSeries.GET(
+      apiRequest("GET", { token, query: { userId: "me", tz: JST, unit: "month", from: "2025-01-01", to: "2026-12-31" } }),
+    );
+    const monthBody = await readResponse(okMonth);
+    expect(monthBody.status).toBe(200);
+    expect(monthBody.body.buckets).toHaveLength(24);
   });
 });
