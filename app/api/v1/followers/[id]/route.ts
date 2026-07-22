@@ -54,10 +54,10 @@ export async function GET(
 
   const rows = ids.length
     ? await prisma.user.findMany({
-        where: { id: { in: ids }, username: { not: null } },
+        where: { id: { in: ids }, name: { not: null } },
         select: {
           id: true,
-          username: true,
+          name: true,
           iconEmoji: true,
           iconBackgroundColor: true,
         },

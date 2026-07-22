@@ -10,10 +10,6 @@ export const auth = betterAuth({
   }),
   user: {
     additionalFields: {
-      username: {
-        type: "string",
-        input: true,
-      },
       iconEmoji: {
         type: "string",
         input: true,

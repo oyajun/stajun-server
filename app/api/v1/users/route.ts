@@ -7,15 +7,15 @@ const MAX_LIMIT = 50;
 
 const USER_SELECT = {
   id: true,
-  username: true,
+  name: true,
   iconEmoji: true,
   iconBackgroundColor: true,
 } satisfies Prisma.UserSelect;
 
 /**
- * GET /api/v1/users?q=<表示名>&limit=&offset= — 表示名（username）でユーザー検索。
+ * GET /api/v1/users?q=<表示名>&limit=&offset= — 表示名（name）でユーザー検索。
  * 完全一致（大文字小文字は無視）を先頭に、続けて部分一致（曖昧一致）を返す。
- * 各グループ内は username 昇順。自分自身とオンボーディング未完了ユーザーは除外。
+ * 各グループ内は name 昇順。自分自身とオンボーディング未完了ユーザーは除外。
  * limit（既定20・最大50）と offset（既定0）でページング。
  */
 export async function GET(request: Request) {
@@ -40,19 +40,19 @@ export async function GET(request: Request) {
   });
 
   // 完全一致グループと曖昧一致（完全一致を除いた部分一致）グループを分ける。
-  // username の contains/equals 条件で NOT NULL＝オンボーディング済みのみが対象。
+  // name の contains/equals 条件で NOT NULL＝オンボーディング済みのみが対象。
   const exactWhere: Prisma.UserWhereInput = {
     id: { not: user.id },
-    username: { equals: q, mode: "insensitive" },
+    name: { equals: q, mode: "insensitive" },
   };
   const fuzzyWhere: Prisma.UserWhereInput = {
     id: { not: user.id },
-    username: { contains: q, mode: "insensitive" },
-    NOT: { username: { equals: q, mode: "insensitive" } },
+    name: { contains: q, mode: "insensitive" },
+    NOT: { name: { equals: q, mode: "insensitive" } },
   };
-  // 論理的な並び順は [完全一致(username昇順) ... 曖昧一致(username昇順)]。
+  // 論理的な並び順は [完全一致(name昇順) ... 曖昧一致(name昇順)]。
   const orderBy: Prisma.UserOrderByWithRelationInput[] = [
-    { username: "asc" },
+    { name: "asc" },
     { id: "asc" }, // 同名時の安定化（ページ間で並びがぶれないように）
   ];
 
@@ -103,7 +103,7 @@ export async function GET(request: Request) {
   return Response.json({
     users: rows.map((u) => ({
       id: u.id,
-      username: u.username,
+      name: u.name,
       iconEmoji: u.iconEmoji ?? null,
       iconBackgroundColor: u.iconBackgroundColor ?? null,
       isFollowing: followingSet.has(u.id),

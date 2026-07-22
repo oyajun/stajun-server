@@ -4,7 +4,7 @@ import {
   apiError,
   isValidIconBackgroundColor,
   isValidIconEmoji,
-  isValidUsername,
+  isValidName,
   readJson,
   requireOnboardedUser,
   requireUser,
@@ -13,14 +13,14 @@ import { isAPIError } from "better-auth/api";
 
 /**
  * POST /api/v1/users/me — 初回プロフィール登録（オンボーディング）
- * オンボーディング未完了（username IS NULL）のユーザーのみ許可。既に登録済みなら409。
+ * オンボーディング未完了（name IS NULL）のユーザーのみ許可。既に登録済みなら409。
  */
 export async function POST(request: Request) {
   const authed = await requireUser(request);
   if (authed instanceof Response) return authed;
   const { user } = authed;
 
-  if (user.username) {
+  if (user.name) {
     return apiError(
       409,
       "ALREADY_ONBOARDED",
@@ -32,16 +32,16 @@ export async function POST(request: Request) {
   if (body === null || typeof body !== "object") {
     return apiError(400, "INVALID_BODY", "リクエストボディが不正です。");
   }
-  const { username, iconEmoji, iconBackgroundColor } = body as Record<
+  const { name, iconEmoji, iconBackgroundColor } = body as Record<
     string,
     unknown
   >;
 
-  if (!isValidUsername(username)) {
+  if (!isValidName(name)) {
     return apiError(
       400,
-      "INVALID_USERNAME",
-      "usernameは1〜30文字で、空白のみ・改行等の制御文字は使えません。",
+      "INVALID_NAME",
+      "nameは1〜30文字で、空白のみ・改行等の制御文字は使えません。",
     );
   }
   if (!isValidIconEmoji(iconEmoji)) {
@@ -57,11 +57,10 @@ export async function POST(request: Request) {
 
   const updated = await prisma.user.update({
     where: { id: user.id },
-    // UIでは name を収集しないため、登録時に username を name にも複製する
-    data: { username, iconEmoji, iconBackgroundColor, name: username },
+    data: { name, iconEmoji, iconBackgroundColor },
     select: {
       id: true,
-      username: true,
+      name: true,
       iconEmoji: true,
       iconBackgroundColor: true,
     },
@@ -78,7 +77,7 @@ export async function GET(request: Request) {
 
   return Response.json({
     id: user.id,
-    username: user.username,
+    name: user.name,
     iconEmoji: user.iconEmoji ?? null,
     iconBackgroundColor: user.iconBackgroundColor ?? null,
   });
@@ -94,29 +93,26 @@ export async function PATCH(request: Request) {
   if (body === null || typeof body !== "object") {
     return apiError(400, "INVALID_BODY", "リクエストボディが不正です。");
   }
-  const { username, iconEmoji, iconBackgroundColor } = body as Record<
+  const { name, iconEmoji, iconBackgroundColor } = body as Record<
     string,
     unknown
   >;
 
   const data: {
-    username?: string;
     name?: string;
     iconEmoji?: string;
     iconBackgroundColor?: string;
   } = {};
 
-  if (username !== undefined) {
-    if (!isValidUsername(username)) {
+  if (name !== undefined) {
+    if (!isValidName(name)) {
       return apiError(
         400,
-        "INVALID_USERNAME",
-        "usernameは1〜30文字で、空白のみ・改行等の制御文字は使えません。",
+        "INVALID_NAME",
+        "nameは1〜30文字で、空白のみ・改行等の制御文字は使えません。",
       );
     }
-    data.username = username;
-    // username を正とし name も同期させる
-    data.name = username;
+    data.name = name;
   }
   if (iconEmoji !== undefined) {
     if (!isValidIconEmoji(iconEmoji)) {
@@ -144,7 +140,7 @@ export async function PATCH(request: Request) {
     data,
     select: {
       id: true,
-      username: true,
+      name: true,
       iconEmoji: true,
       iconBackgroundColor: true,
     },

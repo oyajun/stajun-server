@@ -15,7 +15,7 @@ const MAX_LIMIT = 50;
 
 const AUTHOR_SELECT = {
   id: true,
-  username: true,
+  name: true,
   iconEmoji: true,
   iconBackgroundColor: true,
 } satisfies Prisma.UserSelect;
@@ -136,7 +136,7 @@ export async function GET(request: Request) {
       user: a
         ? {
             id: a.id,
-            username: a.username,
+            name: a.name,
             iconEmoji: a.iconEmoji ?? null,
             iconBackgroundColor: a.iconBackgroundColor ?? null,
           }

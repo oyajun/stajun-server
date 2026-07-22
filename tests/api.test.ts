@@ -39,7 +39,7 @@ describe("認証・オンボーディングゲート", () => {
   });
 
   it("オンボーディング未完了ユーザーは保護ルートで403", async () => {
-    const u = await createUser(); // username=null
+    const u = await createUser(); // name=null
     const res = await ssState.GET(
       apiRequest("GET", { token: u.token }),
       routeCtx({ id: "me" }),
@@ -56,46 +56,46 @@ describe("オンボーディング（POST /users/me）", () => {
     const res = await usersMe.POST(
       apiRequest("POST", {
         token: u.token,
-        body: { username: "alice", iconEmoji: "📚", iconBackgroundColor: "#FFD54F" },
+        body: { name: "alice", iconEmoji: "📚", iconBackgroundColor: "#FFD54F" },
       }),
     );
     const { status, body } = await readResponse(res);
     expect(status).toBe(201);
-    expect(body).toMatchObject({ id: u.id, username: "alice", iconEmoji: "📚" });
+    expect(body).toMatchObject({ id: u.id, name: "alice", iconEmoji: "📚" });
   });
 
-  it("日本語のusernameも許可される", async () => {
+  it("日本語のnameも許可される", async () => {
     const u = await createUser();
     const res = await usersMe.POST(
       apiRequest("POST", {
         token: u.token,
-        body: { username: "田中太郎", iconEmoji: "🐣", iconBackgroundColor: "#B3E5FC" },
+        body: { name: "田中太郎", iconEmoji: "🐣", iconBackgroundColor: "#B3E5FC" },
       }),
     );
     const { status, body } = await readResponse(res);
     expect(status).toBe(201);
-    expect(body.username).toBe("田中太郎");
+    expect(body.name).toBe("田中太郎");
   });
 
-  it("空白のみのusernameは400", async () => {
+  it("空白のみのnameは400", async () => {
     const u = await createUser();
     const res = await usersMe.POST(
       apiRequest("POST", {
         token: u.token,
-        body: { username: "   ", iconEmoji: "📚", iconBackgroundColor: "#FFD54F" },
+        body: { name: "   ", iconEmoji: "📚", iconBackgroundColor: "#FFD54F" },
       }),
     );
     const { status, body } = await readResponse(res);
     expect(status).toBe(400);
-    expect(body.error.code).toBe("INVALID_USERNAME");
+    expect(body.error.code).toBe("INVALID_NAME");
   });
 
   it("登録済みユーザーの再登録は409", async () => {
-    const u = await createUser({ username: "bob", iconEmoji: "🔥", iconBackgroundColor: "#FFCCBC" });
+    const u = await createUser({ name: "bob", iconEmoji: "🔥", iconBackgroundColor: "#FFCCBC" });
     const res = await usersMe.POST(
       apiRequest("POST", {
         token: u.token,
-        body: { username: "bob2", iconEmoji: "📚", iconBackgroundColor: "#FFD54F" },
+        body: { name: "bob2", iconEmoji: "📚", iconBackgroundColor: "#FFD54F" },
       }),
     );
     const { status, body } = await readResponse(res);
@@ -106,15 +106,15 @@ describe("オンボーディング（POST /users/me）", () => {
 
 describe("プロフィール（GET/PATCH /users/me）", () => {
   it("自分のプロフィールを取得できる", async () => {
-    const u = await createUser({ username: "carol", iconEmoji: "🐱", iconBackgroundColor: "#C8E6C9" });
+    const u = await createUser({ name: "carol", iconEmoji: "🐱", iconBackgroundColor: "#C8E6C9" });
     const res = await usersMe.GET(apiRequest("GET", { token: u.token }));
     const { status, body } = await readResponse(res);
     expect(status).toBe(200);
-    expect(body).toMatchObject({ id: u.id, username: "carol", iconEmoji: "🐱" });
+    expect(body).toMatchObject({ id: u.id, name: "carol", iconEmoji: "🐱" });
   });
 
   it("部分更新できる", async () => {
-    const u = await createUser({ username: "dave", iconEmoji: "🐶", iconBackgroundColor: "#FFE0B2" });
+    const u = await createUser({ name: "dave", iconEmoji: "🐶", iconBackgroundColor: "#FFE0B2" });
     const res = await usersMe.PATCH(apiRequest("PATCH", { token: u.token, body: { iconEmoji: "✏️" } }));
     const { status, body } = await readResponse(res);
     expect(status).toBe(200);
@@ -122,14 +122,14 @@ describe("プロフィール（GET/PATCH /users/me）", () => {
   });
 
   it("不正なcolorは400", async () => {
-    const u = await createUser({ username: "erin", iconEmoji: "🐰", iconBackgroundColor: "#FFFFFF" });
+    const u = await createUser({ name: "erin", iconEmoji: "🐰", iconBackgroundColor: "#FFFFFF" });
     const res = await usersMe.PATCH(apiRequest("PATCH", { token: u.token, body: { iconBackgroundColor: "red" } }));
     const { status } = await readResponse(res);
     expect(status).toBe(400);
   });
 
   it("更新フィールドが無いと400 NO_FIELDS", async () => {
-    const u = await createUser({ username: "fay", iconEmoji: "🐭", iconBackgroundColor: "#D1C4E9" });
+    const u = await createUser({ name: "fay", iconEmoji: "🐭", iconBackgroundColor: "#D1C4E9" });
     const res = await usersMe.PATCH(apiRequest("PATCH", { token: u.token, body: {} }));
     const { status, body } = await readResponse(res);
     expect(status).toBe(400);
@@ -139,25 +139,25 @@ describe("プロフィール（GET/PATCH /users/me）", () => {
 
 describe("公開プロフィール（GET /users/:id）", () => {
   it("idで他ユーザーを取得（未フォロー・未勉強）", async () => {
-    const me = await createUser({ username: "me1", iconEmoji: "🙂", iconBackgroundColor: "#FFF9C4" });
-    const other = await createUser({ username: "other1", iconEmoji: "😎", iconBackgroundColor: "#B2DFDB" });
+    const me = await createUser({ name: "me1", iconEmoji: "🙂", iconBackgroundColor: "#FFF9C4" });
+    const other = await createUser({ name: "other1", iconEmoji: "😎", iconBackgroundColor: "#B2DFDB" });
     const res = await usersId.GET(apiRequest("GET", { token: me.token }), routeCtx({ id: other.id }));
     const { status, body } = await readResponse(res);
     expect(status).toBe(200);
-    expect(body).toMatchObject({ id: other.id, username: "other1", isFollowing: false, isStudying: false });
+    expect(body).toMatchObject({ id: other.id, name: "other1", isFollowing: false, isStudying: false });
     expect(body.studyingSince).toBeNull();
   });
 
   it("存在しないidは404", async () => {
-    const me = await createUser({ username: "me2", iconEmoji: "🙂", iconBackgroundColor: "#FFF9C4" });
+    const me = await createUser({ name: "me2", iconEmoji: "🙂", iconBackgroundColor: "#FFF9C4" });
     const res = await usersId.GET(apiRequest("GET", { token: me.token }), routeCtx({ id: "no-such-id" }));
     const { status } = await readResponse(res);
     expect(status).toBe(404);
   });
 
   it("オンボーディング未完了ユーザーのidは404扱い", async () => {
-    const me = await createUser({ username: "me3", iconEmoji: "🙂", iconBackgroundColor: "#FFF9C4" });
-    const halfUser = await createUser(); // username=null
+    const me = await createUser({ name: "me3", iconEmoji: "🙂", iconBackgroundColor: "#FFF9C4" });
+    const halfUser = await createUser(); // name=null
     const res = await usersId.GET(apiRequest("GET", { token: me.token }), routeCtx({ id: halfUser.id }));
     const { status } = await readResponse(res);
     expect(status).toBe(404);
@@ -166,7 +166,7 @@ describe("公開プロフィール（GET /users/:id）", () => {
 
 describe("ユーザー検索（GET /users?q=）", () => {
   it("qが無い/空なら400", async () => {
-    const me = await createUser({ username: "searcher0" });
+    const me = await createUser({ name: "searcher0" });
     const r1 = await users.GET(apiRequest("GET", { token: me.token }));
     expect((await readResponse(r1)).status).toBe(400);
     const r2 = await users.GET(apiRequest("GET", { token: me.token, query: { q: "   " } }));
@@ -175,15 +175,15 @@ describe("ユーザー検索（GET /users?q=）", () => {
     expect(body.error.code).toBe("INVALID_QUERY");
   });
 
-  it("完全一致が先頭、その後に曖昧一致（username昇順）", async () => {
-    const me = await createUser({ username: "searcher1" });
+  it("完全一致が先頭、その後に曖昧一致（name昇順）", async () => {
+    const me = await createUser({ name: "searcher1" });
     // 完全一致
-    const exact = await createUser({ username: "たろう" });
+    const exact = await createUser({ name: "たろう" });
     // 部分一致（曖昧）2件 — 昇順確認のため意図的に逆順で作成
-    const fuzzyB = await createUser({ username: "たろうＢ" });
-    const fuzzyA = await createUser({ username: "たろうＡ" });
+    const fuzzyB = await createUser({ name: "たろうＢ" });
+    const fuzzyA = await createUser({ name: "たろうＡ" });
     // 無関係
-    await createUser({ username: "はなこ" });
+    await createUser({ name: "はなこ" });
 
     const res = await users.GET(
       apiRequest("GET", { token: me.token, query: { q: "たろう" } }),
@@ -192,15 +192,15 @@ describe("ユーザー検索（GET /users?q=）", () => {
     expect(status).toBe(200);
     const ids = body.users.map((u: any) => u.id);
     expect(ids[0]).toBe(exact.id); // 完全一致が先頭
-    // 続く曖昧一致は username 昇順（Ａ→Ｂ）
+    // 続く曖昧一致は name 昇順（Ａ→Ｂ）
     expect(ids.indexOf(fuzzyA.id)).toBeLessThan(ids.indexOf(fuzzyB.id));
     expect(ids).toContain(fuzzyA.id);
     expect(ids).toContain(fuzzyB.id);
   });
 
   it("完全一致は大文字小文字を無視、自分自身は除外、isFollowingを含む", async () => {
-    const me = await createUser({ username: "Alice-me" });
-    const target = await createUser({ username: "BOB" });
+    const me = await createUser({ name: "Alice-me" });
+    const target = await createUser({ name: "BOB" });
     await follow.PUT(apiRequest("PUT", { token: me.token }), routeCtx({ id: target.id }));
 
     const res = await users.GET(
@@ -210,11 +210,11 @@ describe("ユーザー検索（GET /users?q=）", () => {
     expect(status).toBe(200);
     expect(body.users.some((u: any) => u.id === me.id)).toBe(false); // 自分は除外
     const hit = body.users.find((u: any) => u.id === target.id);
-    expect(hit).toMatchObject({ username: "BOB", isFollowing: true });
+    expect(hit).toMatchObject({ name: "BOB", isFollowing: true });
   });
 
   it("該当なしは空配列", async () => {
-    const me = await createUser({ username: "searcher2" });
+    const me = await createUser({ name: "searcher2" });
     const res = await users.GET(
       apiRequest("GET", { token: me.token, query: { q: "zzz-no-match-xyz" } }),
     );
@@ -225,13 +225,13 @@ describe("ユーザー検索（GET /users?q=）", () => {
   });
 
   it("limit/offsetでページング（完全一致→曖昧一致の順を跨いで割り当て）", async () => {
-    const me = await createUser({ username: "pg-searcher" });
+    const me = await createUser({ name: "pg-searcher" });
     // 論理順: [pgtest(完全一致), pgtest-a, pgtest-b, pgtest-c, pgtest-d]
-    await createUser({ username: "pgtest" });
-    await createUser({ username: "pgtest-c" });
-    await createUser({ username: "pgtest-a" });
-    await createUser({ username: "pgtest-d" });
-    await createUser({ username: "pgtest-b" });
+    await createUser({ name: "pgtest" });
+    await createUser({ name: "pgtest-c" });
+    await createUser({ name: "pgtest-a" });
+    await createUser({ name: "pgtest-d" });
+    await createUser({ name: "pgtest-b" });
 
     const page = async (offset: number) => {
       const res = await users.GET(
@@ -245,11 +245,11 @@ describe("ユーザー検索（GET /users?q=）", () => {
 
     const p1 = await page(0);
     expect(p1.status).toBe(200);
-    expect(p1.body.users.map((u: any) => u.username)).toEqual(["pgtest", "pgtest-a"]);
+    expect(p1.body.users.map((u: any) => u.name)).toEqual(["pgtest", "pgtest-a"]);
     expect(p1.body.pagination).toMatchObject({ total: 5, limit: 2, offset: 0, hasMore: true });
 
     const p2 = await page(2);
-    expect(p2.body.users.map((u: any) => u.username)).toEqual(["pgtest-b", "pgtest-c"]);
+    expect(p2.body.users.map((u: any) => u.name)).toEqual(["pgtest-b", "pgtest-c"]);
     expect(p2.body.pagination).toMatchObject({ total: 5, offset: 2, hasMore: true });
 
     const p3 = await page(4);
@@ -499,7 +499,7 @@ describe("投稿（/posts）", () => {
     expect(ids).not.toContain(strangerPost.body.id);
     // 各投稿に投稿者情報が付く
     const followeeEntry = body.posts.find((p: any) => p.id === followeePost.body.id);
-    expect(followeeEntry.user).toMatchObject({ id: followee.id, username: "tl-followee" });
+    expect(followeeEntry.user).toMatchObject({ id: followee.id, name: "tl-followee" });
     // 新しい順（followeePost は mine より後に作成）
     expect(ids.indexOf(followeePost.body.id)).toBeLessThan(ids.indexOf(mine.body.id));
   });

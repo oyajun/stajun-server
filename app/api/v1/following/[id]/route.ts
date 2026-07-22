@@ -36,10 +36,10 @@ export async function GET(
   }
 
   const rows = await prisma.user.findMany({
-    where: { id: { in: ids }, username: { not: null } },
+    where: { id: { in: ids }, name: { not: null } },
     select: {
       id: true,
-      username: true,
+      name: true,
       iconEmoji: true,
       iconBackgroundColor: true,
     },
@@ -53,8 +53,8 @@ export async function GET(
     if (a.studyingSince && b.studyingSince) {
       return b.studyingSince.getTime() - a.studyingSince.getTime();
     }
-    // それ以外は username 昇順
-    return (a.username ?? "").localeCompare(b.username ?? "");
+    // それ以外は name 昇順
+    return (a.name ?? "").localeCompare(b.name ?? "");
   });
 
   return Response.json({ users });

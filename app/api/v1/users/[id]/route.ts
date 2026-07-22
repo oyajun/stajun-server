@@ -22,13 +22,13 @@ export async function GET(
     where: { id: targetIdParam },
     select: {
       id: true,
-      username: true,
+      name: true,
       iconEmoji: true,
       iconBackgroundColor: true,
     },
   });
-  // オンボーディング未完了（username IS NULL）のユーザーは公開対象外として404扱い
-  if (!target || !target.username) {
+  // オンボーディング未完了（name IS NULL）のユーザーは公開対象外として404扱い
+  if (!target || !target.name) {
     return apiError(404, "USER_NOT_FOUND", "ユーザーが見つかりません。");
   }
 
@@ -50,7 +50,7 @@ export async function GET(
 
   return Response.json({
     id: target.id,
-    username: target.username,
+    name: target.name,
     iconEmoji: target.iconEmoji ?? null,
     iconBackgroundColor: target.iconBackgroundColor ?? null,
     isFollowing: follow !== null,

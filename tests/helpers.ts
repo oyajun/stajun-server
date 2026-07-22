@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 export const TEST_EMAIL_DOMAIN = "@vitest.stajun.test";
 
 type CreateUserOpts = {
-  /** 設定するとオンボーディング完了ユーザーになる（未指定は username=null の未完了ユーザー） */
+  /** 設定するとオンボーディング完了ユーザーになる（未指定は name=null の未完了ユーザー） */
+  name?: string;
   username?: string;
   iconEmoji?: string;
   iconBackgroundColor?: string;
@@ -16,6 +17,7 @@ type CreateUserOpts = {
 export type TestUser = {
   id: string;
   token: string;
+  name: string | null;
   username: string | null;
 };
 
@@ -23,15 +25,14 @@ export type TestUser = {
 export async function createUser(opts: CreateUserOpts = {}): Promise<TestUser> {
   const id = randomUUID();
   const email = `u-${id}${TEST_EMAIL_DOMAIN}`;
-  const username = opts.username ?? null;
+  const name = opts.name ?? opts.username ?? null;
 
   await prisma.user.create({
     data: {
       id,
-      name: username ?? "",
+      name,
       email,
       emailVerified: true,
-      username,
       iconEmoji: opts.iconEmoji ?? null,
       iconBackgroundColor: opts.iconBackgroundColor ?? null,
     },
@@ -52,7 +53,7 @@ export async function createUser(opts: CreateUserOpts = {}): Promise<TestUser> {
     },
   });
 
-  return { id, token, username };
+  return { id, token, name, username: name };
 }
 
 /** テスト用データ（このドメインのユーザーと従属レコード）を全削除 */

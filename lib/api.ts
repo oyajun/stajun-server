@@ -35,8 +35,8 @@ export async function requireUser(
 }
 
 /**
- * 認証必須 かつ オンボーディング完了（username が設定済み）必須。
- * 未認証は401、オンボーディング未完了（username IS NULL）は403を返す。
+ * 認証必須 かつ オンボーディング完了（name が設定済み）必須。
+ * 未認証は401、オンボーディング未完了（name IS NULL）は403を返す。
  * POST /api/v1/users/me 以外の /api/v1/* で使う。
  */
 export async function requireOnboardedUser(
@@ -44,7 +44,7 @@ export async function requireOnboardedUser(
 ): Promise<{ user: SessionUser } | Response> {
   const result = await requireUser(request);
   if (result instanceof Response) return result;
-  if (!result.user.username) {
+  if (!result.user.name) {
     return apiError(
       403,
       "ONBOARDING_REQUIRED",
@@ -239,9 +239,9 @@ const HEX_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
 // 制御文字（改行・タブ等 U+0000–U+001F, U+007F）を弾くための判定
 const CONTROL_CHARS_RE = /[\u0000-\u001F\u007F]/;
 
-// username は表示名。ユーザー指定はidで行うため文字種は限定せず、
+// name は表示名。ユーザー指定はidで行うため文字種は限定せず、
 // 日本語など非英語もOK。空文字・空白のみ・制御文字・長すぎるものだけ弾く。
-export function isValidUsername(v: unknown): v is string {
+export function isValidName(v: unknown): v is string {
   if (typeof v !== "string") return false;
   if (v.trim().length === 0) return false;
   if (CONTROL_CHARS_RE.test(v)) return false;
@@ -288,7 +288,7 @@ export function resolveUserIdParam(idParam: string, selfId: string): string {
 
 /**
  * :id を解決し、公開対象（オンボーディング完了）のユーザーidを返す。
- * `"me"` は自分。存在しない/未オンボーディング（username IS NULL）は null。
+ * `"me"` は自分。存在しない/未オンボーディング（name IS NULL）は null。
  */
 export async function resolveOnboardedUserId(
   idParam: string,
@@ -299,15 +299,15 @@ export async function resolveOnboardedUserId(
   if (id === selfId) return id;
   const target = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, username: true },
+    select: { id: true, name: true },
   });
-  if (!target || !target.username) return null;
+  if (!target || !target.name) return null;
   return target.id;
 }
 
 export type UserRow = {
   id: string;
-  username: string | null;
+  name: string | null;
   iconEmoji: string | null;
   iconBackgroundColor: string | null;
 };
@@ -338,7 +338,7 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
     const since = studyingSince.get(r.id) ?? null;
     return {
       id: r.id,
-      username: r.username,
+      name: r.name,
       iconEmoji: r.iconEmoji ?? null,
       iconBackgroundColor: r.iconBackgroundColor ?? null,
       isFollowing: followingSet.has(r.id),
