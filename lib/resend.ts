@@ -11,6 +11,7 @@ export async function sendOtpEmail(email: string, otp: string) {
   });
 
   if (error) {
+    console.error('Resend email send failed:', error);
     throw new Error(`Resend email send failed: ${error.message}`);
   }
 }
@@ -38,6 +39,7 @@ export async function sendReportEmail(
   });
 
   if (error) {
+    console.error('Resend email send failed:', error);
     throw new Error(`Resend email send failed: ${error.message}`);
   }
 }

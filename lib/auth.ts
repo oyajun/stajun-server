@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { emailOTP, bearer } from "better-auth/plugins";
+import { emailOTP, bearer, anonymous, openAPI } from "better-auth/plugins";
 import { dash } from "@better-auth/infra";
 import { prisma } from "./prisma";
 import { sendOtpEmail } from "./resend";
@@ -41,8 +41,17 @@ export const auth = betterAuth({
       async sendVerificationOTP({ email, otp }) {
         await sendOtpEmail(email, otp);
       },
+      changeEmail: {
+        enabled: true
+      }
     }),
     bearer(),
     dash(),
+    anonymous(
+      {
+        disableDeleteAnonymousUser: true
+      }
+    ),
+    openAPI()
   ],
 });

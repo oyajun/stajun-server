@@ -18,6 +18,7 @@ model User {
   updatedAt           DateTime  @updatedAt
   iconEmoji           String?
   iconBackgroundColor String?
+  isAnonymous         Boolean?
   sessions            Session[]
   accounts            Account[]
   following           Follow[]       @relation("Following")
