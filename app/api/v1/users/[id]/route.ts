@@ -50,9 +50,9 @@ export async function GET(
 
   return Response.json({
     id: target.id,
-    name: target.name ?? "名無し",
-    iconEmoji: target.iconEmoji ?? "👤",
-    iconBackgroundColor: target.iconBackgroundColor ?? "#CCCCCC",
+    name: target.name || "名無し",
+    iconEmoji: target.iconEmoji || "👤",
+    iconBackgroundColor: target.iconBackgroundColor || "#CCCCCC",
     isFollowing: follow !== null,
     isStudying: activeSession !== null,
     studyingSince: activeSession?.startedAt ?? null,

@@ -329,9 +329,9 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
     const since = studyingSince.get(r.id) ?? null;
     return {
       id: r.id,
-      name: r.name ?? "名無し",
-      iconEmoji: r.iconEmoji ?? "👤",
-      iconBackgroundColor: r.iconBackgroundColor ?? "#CCCCCC",
+      name: r.name || "名無し",
+      iconEmoji: r.iconEmoji || "👤",
+      iconBackgroundColor: r.iconBackgroundColor || "#CCCCCC",
       isFollowing: followingSet.has(r.id),
       isStudying: since !== null,
       studyingSince: since,

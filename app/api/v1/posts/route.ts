@@ -137,9 +137,9 @@ export async function GET(request: Request) {
       user: a
         ? {
             id: a.id,
-            name: a.name ?? "名無し",
-            iconEmoji: a.iconEmoji ?? "👤",
-            iconBackgroundColor: a.iconBackgroundColor ?? "#CCCCCC",
+            name: a.name || "名無し",
+            iconEmoji: a.iconEmoji || "👤",
+            iconBackgroundColor: a.iconBackgroundColor || "#CCCCCC",
             isAnonymous: a.isAnonymous ?? false,
           }
         : null,
