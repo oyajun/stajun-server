@@ -18,6 +18,7 @@ const AUTHOR_SELECT = {
   name: true,
   iconEmoji: true,
   iconBackgroundColor: true,
+  isAnonymous: true,
 } satisfies Prisma.UserSelect;
 
 /**
@@ -136,9 +137,10 @@ export async function GET(request: Request) {
       user: a
         ? {
             id: a.id,
-            name: a.name,
-            iconEmoji: a.iconEmoji ?? null,
-            iconBackgroundColor: a.iconBackgroundColor ?? null,
+            name: a.name ?? "名無し",
+            iconEmoji: a.iconEmoji ?? "👤",
+            iconBackgroundColor: a.iconBackgroundColor ?? "#CCCCCC",
+            isAnonymous: a.isAnonymous ?? false,
           }
         : null,
     };

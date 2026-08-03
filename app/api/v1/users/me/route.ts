@@ -20,9 +20,9 @@ export async function GET(request: Request) {
 
   return Response.json({
     id: user.id,
-    name: user.name,
-    iconEmoji: user.iconEmoji ?? null,
-    iconBackgroundColor: user.iconBackgroundColor ?? null,
+    name: user.name ?? "名無し",
+    iconEmoji: user.iconEmoji ?? "👤",
+    iconBackgroundColor: user.iconBackgroundColor ?? "#CCCCCC",
     isAnonymous: user.isAnonymous ?? false,
   });
 }

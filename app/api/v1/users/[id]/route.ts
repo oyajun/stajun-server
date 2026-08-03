@@ -27,8 +27,8 @@ export async function GET(
       iconBackgroundColor: true,
     },
   });
-  // オンボーディング未完了（name IS NULL）のユーザーは公開対象外として404扱い
-  if (!target || !target.name) {
+  // オンボーディング未完了でもプロフィールとして公開する
+  if (!target) {
     return apiError(404, "USER_NOT_FOUND", "ユーザーが見つかりません。");
   }
 
@@ -50,9 +50,9 @@ export async function GET(
 
   return Response.json({
     id: target.id,
-    name: target.name,
-    iconEmoji: target.iconEmoji ?? null,
-    iconBackgroundColor: target.iconBackgroundColor ?? null,
+    name: target.name ?? "名無し",
+    iconEmoji: target.iconEmoji ?? "👤",
+    iconBackgroundColor: target.iconBackgroundColor ?? "#CCCCCC",
     isFollowing: follow !== null,
     isStudying: activeSession !== null,
     studyingSince: activeSession?.startedAt ?? null,
