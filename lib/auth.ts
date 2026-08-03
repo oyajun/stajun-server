@@ -9,6 +9,9 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  session: {
+    disableSessionRefresh: true
+  },
   databaseHooks: {
     user: {
       update: {
