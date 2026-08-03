@@ -9,6 +9,23 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  databaseHooks: {
+    user: {
+      update: {
+        before: async (data: any) => {
+          if (data && data.email) {
+            return {
+              data: {
+                ...data,
+                isAnonymous: false,
+              },
+            };
+          }
+          return { data };
+        },
+      },
+    },
+  },
   user: {
     additionalFields: {
       iconEmoji: {
