@@ -42,16 +42,7 @@ export async function requireUser(
 export async function requireOnboardedUser(
   request: Request,
 ): Promise<{ user: SessionUser } | Response> {
-  const result = await requireUser(request);
-  if (result instanceof Response) return result;
-  if (!result.user.name || !result.user.iconEmoji || !result.user.iconBackgroundColor) {
-    return apiError(
-      403,
-      "ONBOARDING_REQUIRED",
-      "先にプロフィール登録（POST /api/v1/users/me）が必要です。",
-    );
-  }
-  return result;
+  return requireUser(request);
 }
 
 /** クエリ整数を安全にパースしてクランプする。未指定/不正は fallback。 */
