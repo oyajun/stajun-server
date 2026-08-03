@@ -20,6 +20,12 @@ model User {
   iconBackgroundColor String?
   sessions            Session[]
   accounts            Account[]
+  following           Follow[]       @relation("Following")
+  followers           Follow[]       @relation("Followers")
+  blocking            Block[]        @relation("Blocking")
+  blockers            Block[]        @relation("Blockers")
+  studySession        StudySession?
+  studyPosts          StudyPost[]
 
   @@unique([email])
   @@map("user")
@@ -81,6 +87,9 @@ model Follow {
   followingId String
   createdAt   DateTime @default(now())
 
+  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
   @@unique([followerId, followingId])
 }
 
@@ -89,6 +98,9 @@ model Block {
   blockerId String
   blockedId String
   createdAt DateTime @default(now())
+
+  blocker   User     @relation("Blocking", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("Blockers", fields: [blockedId], references: [id], onDelete: Cascade)
 
   @@unique([blockerId, blockedId])
 }
@@ -99,6 +111,8 @@ model Block {
 model StudySession {
   userId    String   @id
   startedAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model StudyPost {
@@ -107,6 +121,8 @@ model StudyPost {
   minutes   Int
   comment   String?
   createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
