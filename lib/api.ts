@@ -44,7 +44,7 @@ export async function requireOnboardedUser(
 ): Promise<{ user: SessionUser } | Response> {
   const result = await requireUser(request);
   if (result instanceof Response) return result;
-  if (!result.user.name) {
+  if (!result.user.name || !result.user.iconEmoji || !result.user.iconBackgroundColor || result.user.isAnonymous) {
     return apiError(
       403,
       "ONBOARDING_REQUIRED",
