@@ -26,8 +26,18 @@ export async function GET(
     return apiError(404, "USER_NOT_FOUND", "ユーザーが見つかりません。");
   }
 
+  const blocks = await prisma.block.findMany({
+    where: {
+      OR: [{ blockerId: user.id }, { blockedId: user.id }],
+    },
+    select: { blockerId: true, blockedId: true },
+  });
+  const excludedIds = blocks.map((b) =>
+    b.blockerId === user.id ? b.blockedId : b.blockerId
+  );
+
   const follows = await prisma.follow.findMany({
-    where: { followerId: targetId },
+    where: { followerId: targetId, followingId: { notIn: excludedIds } },
     select: { followingId: true },
   });
   const ids = follows.map((f) => f.followingId);

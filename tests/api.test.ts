@@ -21,6 +21,8 @@ import * as posts from "@/app/api/v1/posts/route";
 import * as postId from "@/app/api/v1/posts/[id]/route";
 import * as stats from "@/app/api/v1/stats/route";
 import * as statsSeries from "@/app/api/v1/stats/series/route";
+import * as blockId from "@/app/api/v1/block/[id]/route";
+import * as blocks from "@/app/api/v1/blocks/route";
 
 beforeAll(async () => {
   await cleanupTestData();
@@ -829,5 +831,97 @@ describe("勉強時間の統計（/stats）", () => {
     const monthBody = await readResponse(okMonth);
     expect(monthBody.status).toBe(200);
     expect(monthBody.body.buckets).toHaveLength(24);
+  });
+});
+
+describe("ブロック機能（/block/:id, /blocks）", () => {
+  it("ブロック・ブロック解除ができる", async () => {
+    const blocker = await createUser({ name: "blocker" });
+    const blocked = await createUser({ name: "blocked" });
+
+    // ブロック
+    const putRes = await blockId.PUT(
+      apiRequest("PUT", { token: blocker.token }),
+      routeCtx({ id: blocked.id })
+    );
+    expect((await readResponse(putRes)).status).toBe(204);
+
+    // ブロック済み一覧取得
+    const listRes = await blocks.GET(
+      apiRequest("GET", { token: blocker.token })
+    );
+    const listBody = await readResponse(listRes);
+    expect(listBody.status).toBe(200);
+    expect(listBody.body.users.some((u: any) => u.id === blocked.id)).toBe(true);
+
+    // ブロック解除
+    const delRes = await blockId.DELETE(
+      apiRequest("DELETE", { token: blocker.token }),
+      routeCtx({ id: blocked.id })
+    );
+    expect((await readResponse(delRes)).status).toBe(204);
+
+    // 再取得（空になっているはず）
+    const listRes2 = await blocks.GET(
+      apiRequest("GET", { token: blocker.token })
+    );
+    const listBody2 = await readResponse(listRes2);
+    expect(listBody2.body.users.length).toBe(0);
+  });
+
+  it("ブロックすると自分が相手をフォローしていた場合は解除される", async () => {
+    const A = await createUser({ name: "userA" });
+    const B = await createUser({ name: "userB" });
+
+    // A -> B をフォロー
+    await follow.PUT(apiRequest("PUT", { token: A.token }), routeCtx({ id: B.id }));
+    // B -> A をフォロー
+    await follow.PUT(apiRequest("PUT", { token: B.token }), routeCtx({ id: A.id }));
+
+    // A が B をブロック
+    await blockId.PUT(apiRequest("PUT", { token: A.token }), routeCtx({ id: B.id }));
+
+    // A のフォロー中一覧から B は消えているはず（ブロック関係にあるため見えない ＆ フォロー解除されている）
+    const followingA = await following.GET(
+      apiRequest("GET", { token: A.token }),
+      routeCtx({ id: "me" })
+    );
+    expect((await readResponse(followingA)).body.users.some((u: any) => u.id === B.id)).toBe(false);
+
+    // B のフォロー中一覧から A は消えているはず（ブロック関係にあるため見えない）
+    // DB 上では B -> A のフォロー関係は残っているが API のレスポンスからは除外される。
+    const followingB = await following.GET(
+      apiRequest("GET", { token: B.token }),
+      routeCtx({ id: "me" })
+    );
+    expect((await readResponse(followingB)).body.users.some((u: any) => u.id === A.id)).toBe(false);
+  });
+
+  it("ブロック関係にあるユーザーは検索・フォロワー一覧に表示されない", async () => {
+    const A = await createUser({ username: "search_block_A", name: "TargetName" });
+    const B = await createUser({ username: "search_block_B", name: "TargetName" });
+    const C = await createUser({ username: "search_block_C", name: "TargetName" });
+
+    // A -> B フォロー
+    await follow.PUT(apiRequest("PUT", { token: A.token }), routeCtx({ id: B.id }));
+
+    // A が B をブロック
+    await blockId.PUT(apiRequest("PUT", { token: A.token }), routeCtx({ id: B.id }));
+
+    // A が検索（TargetName）→ B は出ず、C だけ出る
+    const searchA = await users.GET(
+      apiRequest("GET", { token: A.token, query: { q: "TargetName" } })
+    );
+    const bodyA = (await readResponse(searchA)).body;
+    expect(bodyA.users.some((u: any) => u.id === B.id)).toBe(false);
+    expect(bodyA.users.some((u: any) => u.id === C.id)).toBe(true);
+
+    // B が検索（TargetName）→ A は出ず、C だけ出る
+    const searchB = await users.GET(
+      apiRequest("GET", { token: B.token, query: { q: "TargetName" } })
+    );
+    const bodyB = (await readResponse(searchB)).body;
+    expect(bodyB.users.some((u: any) => u.id === A.id)).toBe(false);
+    expect(bodyB.users.some((u: any) => u.id === C.id)).toBe(true);
   });
 });

@@ -39,14 +39,28 @@ export async function GET(request: Request) {
     max: Number.MAX_SAFE_INTEGER,
   });
 
+  // ブロック関係にあるユーザー（自分がブロックしている、または自分をブロックしている）を除外
+  const blocks = await prisma.block.findMany({
+    where: {
+      OR: [{ blockerId: user.id }, { blockedId: user.id }],
+    },
+    select: { blockerId: true, blockedId: true },
+  });
+  const excludedIds = [
+    user.id,
+    ...blocks.map((b) =>
+      b.blockerId === user.id ? b.blockedId : b.blockerId
+    ),
+  ];
+
   // 完全一致グループと曖昧一致（完全一致を除いた部分一致）グループを分ける。
   // name の contains/equals 条件で NOT NULL＝オンボーディング済みのみが対象。
   const exactWhere: Prisma.UserWhereInput = {
-    id: { not: user.id },
+    id: { notIn: excludedIds },
     name: { equals: q, mode: "insensitive" },
   };
   const fuzzyWhere: Prisma.UserWhereInput = {
-    id: { not: user.id },
+    id: { notIn: excludedIds },
     name: { contains: q, mode: "insensitive" },
     NOT: { name: { equals: q, mode: "insensitive" } },
   };

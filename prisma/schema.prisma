@@ -84,6 +84,15 @@ model Follow {
   @@unique([followerId, followingId])
 }
 
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+}
+
 // 勉強中状態は1ユーザー1行（存在＝勉強中）。真実のタイマーは端末側が持ち、
 // startedAt は他人向けのおおよその経過時間表示にのみ使う。
 // 勉強中判定 = 行が存在し、かつ startedAt が24時間以内（詳細は docs/study-session-state.md）。

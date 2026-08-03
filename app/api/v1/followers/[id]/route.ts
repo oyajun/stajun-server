@@ -40,11 +40,21 @@ export async function GET(
     max: Number.MAX_SAFE_INTEGER,
   });
 
+  const blocks = await prisma.block.findMany({
+    where: {
+      OR: [{ blockerId: user.id }, { blockedId: user.id }],
+    },
+    select: { blockerId: true, blockedId: true },
+  });
+  const excludedIds = blocks.map((b) =>
+    b.blockerId === user.id ? b.blockedId : b.blockerId
+  );
+
   const total = await prisma.follow.count({
-    where: { followingId: targetId },
+    where: { followingId: targetId, followerId: { notIn: excludedIds } },
   });
   const follows = await prisma.follow.findMany({
-    where: { followingId: targetId },
+    where: { followingId: targetId, followerId: { notIn: excludedIds } },
     orderBy: { createdAt: "desc" },
     select: { followerId: true },
     skip: offset,
