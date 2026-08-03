@@ -80,6 +80,7 @@ export async function GET(request: Request) {
     name: user.name,
     iconEmoji: user.iconEmoji ?? null,
     iconBackgroundColor: user.iconBackgroundColor ?? null,
+    isAnonymous: user.isAnonymous ?? false,
   });
 }
 

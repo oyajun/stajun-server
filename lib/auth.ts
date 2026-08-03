@@ -47,11 +47,7 @@ export const auth = betterAuth({
     }),
     bearer(),
     dash(),
-    anonymous(
-      {
-        disableDeleteAnonymousUser: true
-      }
-    ),
+    anonymous(),
     openAPI()
   ],
 });
