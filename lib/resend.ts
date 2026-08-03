@@ -4,9 +4,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendOtpEmail(email: string, otp: string) {
   const { data, error } = await resend.emails.send({
-    from: 'StaJun <noreply@stajun.oyajun.com>',
+    from: 'JunJun <noreply@stajun.oyajun.com>',
     to: [email],
-    subject: 'StaJun 確認コード',
+    subject: 'JunJun 確認コード',
     html: `<p>確認コード: <strong>${otp}</strong></p><p>このコードは発行から一定時間で失効します。</p>`,
   });
 
@@ -24,9 +24,9 @@ export async function sendReportEmail(
   reporterName: string
 ) {
   const { data, error } = await resend.emails.send({
-    from: 'StaJun <noreply@stajun.oyajun.com>',
+    from: 'JunJun <noreply@stajun.oyajun.com>',
     to: [targetEmail],
-    subject: `[StaJun] 投稿の報告: ${postId}`,
+    subject: `[JunJun] 投稿の報告: ${postId}`,
     html: `
       <h2>投稿の報告がありました</h2>
       <p><strong>報告者:</strong> ${reporterName}</p>
