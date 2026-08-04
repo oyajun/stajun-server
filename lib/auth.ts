@@ -10,7 +10,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   session: {
-    expiresIn: 60 * 60 * 24 * 365 * 200, // 200年 (実質的な無期限)
+    expiresIn: 60 * 60 * 24 * 400, // 400日
   },
   databaseHooks: {
     user: {
