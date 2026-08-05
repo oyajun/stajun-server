@@ -2,13 +2,13 @@ import fs from 'fs/promises';
 import path from 'path';
 import ReactMarkdown from 'react-markdown';
 
-export default async function TermsOfServicePage({ params }: { params: Promise<{ lang: string }> }) {
+export default async function SupportPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   
   const supportedLangs = ['ja', 'en', 'ko'];
   const currentLang = supportedLangs.includes(lang) ? lang : 'ja';
 
-  const filePath = path.join(process.cwd(), 'docs', currentLang, 'terms-of-service.md');
+  const filePath = path.join(process.cwd(), 'docs', currentLang, 'support.md');
   let content = '';
   try {
     content = await fs.readFile(filePath, 'utf-8');

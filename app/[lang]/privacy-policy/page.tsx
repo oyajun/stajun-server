@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import ReactMarkdown from 'react-markdown';
 
 export default async function PrivacyPolicyPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -16,8 +17,8 @@ export default async function PrivacyPolicyPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', fontFamily: 'sans-serif', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-      {content}
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', fontFamily: 'sans-serif', lineHeight: '1.6' }}>
+      <ReactMarkdown>{content}</ReactMarkdown>
     </div>
   );
 }
