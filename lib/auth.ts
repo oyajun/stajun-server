@@ -42,15 +42,6 @@ export const auth = betterAuth({
     },
     deleteUser: {
       enabled: true,
-      beforeDelete: async (user) => {
-        await prisma.$transaction([
-          prisma.follow.deleteMany({
-            where: { OR: [{ followerId: user.id }, { followingId: user.id }] },
-          }),
-          prisma.studySession.deleteMany({ where: { userId: user.id } }),
-          prisma.studyPost.deleteMany({ where: { userId: user.id } }),
-        ]);
-      },
     },
   },
   advanced: {
