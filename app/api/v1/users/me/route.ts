@@ -24,6 +24,7 @@ export async function GET(request: Request) {
     iconEmoji: user.iconEmoji || "👤",
     iconBackgroundColor: user.iconBackgroundColor || "#CCCCCC",
     isAnonymous: user.isAnonymous ?? false,
+    email: user.isAnonymous ? null : (user.email ?? null),
   });
 }
 
