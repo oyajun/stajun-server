@@ -48,7 +48,7 @@ export default async function UserLinkPage({ params }: PageProps) {
   const bgColor = user.iconBackgroundColor || "#e2e8f0";
   const name = user.name || "User";
 
-  const universalLink = `https://junjun.oyajun.com/u/${prefix}`;
+  const appSchemeLink = `junjun://u/${prefix}`;
 
   return (
     <main style={styles.container}>
@@ -72,7 +72,7 @@ export default async function UserLinkPage({ params }: PageProps) {
 
         {/* Action Button & Platform Note */}
         <div style={styles.actionSection}>
-          <a href={universalLink} style={styles.primaryButton}>
+          <a href={appSchemeLink} style={styles.primaryButton}>
             Open in App
           </a>
           <p style={styles.platformNote}>
