@@ -3,7 +3,7 @@
     "apps": [],
     "details": [
       {
-        "appIDs": ["*.com.oyajun.junjunapp", "com.oyajun.junjunapp"],
+        "appIDs": ["4Y6ZFKP9N9.com.oyajun.junjunapp"],
         "components": [
           {
             "/": "/u/*",
