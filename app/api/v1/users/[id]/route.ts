@@ -18,7 +18,7 @@ export async function GET(
   const { id } = await ctx.params;
   const targetIdParam = resolveUserIdParam(id, user.id);
 
-  let target = await prisma.user.findUnique({
+  const target = await prisma.user.findUnique({
     where: { id: targetIdParam },
     select: {
       id: true,
@@ -27,19 +27,6 @@ export async function GET(
       iconBackgroundColor: true,
     },
   });
-
-  // 完全一致で見つからない場合、10文字等の prefix（前方一致）での検索を試みる
-  if (!target) {
-    target = await prisma.user.findFirst({
-      where: { id: { startsWith: targetIdParam } },
-      select: {
-        id: true,
-        name: true,
-        iconEmoji: true,
-        iconBackgroundColor: true,
-      },
-    });
-  }
 
   // オンボーディング未完了でもプロフィールとして公開する
   if (!target) {

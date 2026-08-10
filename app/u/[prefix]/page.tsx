@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function UserLinkPage({ params }: PageProps) {
   const { prefix } = await params;
 
+  // Resolve 10-char prefix to full UID (user.id)
   const user = await prisma.user.findFirst({
     where: { id: { startsWith: prefix } },
     select: {
@@ -51,7 +52,8 @@ export default async function UserLinkPage({ params }: PageProps) {
   const bgColor = user.iconBackgroundColor || "#e2e8f0";
   const name = user.name || "User";
 
-  const appSchemeLink = `junjun://u/${prefix}`;
+  // Deep link with full UID
+  const appSchemeLink = `junjun://u/${user.id}`;
 
   return (
     <main style={styles.container}>
@@ -73,7 +75,7 @@ export default async function UserLinkPage({ params }: PageProps) {
         </div>
         <h1 style={styles.name}>{name}</h1>
 
-        {/* Action Buttons: 1. Open in App (Custom URL Scheme) / 2. Download on the App Store */}
+        {/* Action Buttons: 1. Open in App (junjun://u/[fulluserid]) / 2. Download on the App Store */}
         <div style={styles.actionSection}>
           <a href={appSchemeLink} style={styles.primaryButton}>
             Open in App
