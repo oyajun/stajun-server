@@ -8,3 +8,7 @@
 ## X (旧Twitter) 
 開発者のXアカウント宛にメンションまたはDMにてご連絡ください。
 [https://x.com/junjun_nihon](https://x.com/junjun_nihon)
+
+## Discord
+コミュニティサーバーで新機能のアイディアやバグ報告、ご質問などを受け付けています。
+[https://discord.gg/4eqyCHFz3a](https://discord.gg/4eqyCHFz3a)

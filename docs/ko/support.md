@@ -7,4 +7,8 @@
 
 ## X (구 트위터)
 개발자의 X 계정으로 멘션이나 DM(다이렉트 메시지)을 보내주세요.
-[https://x.com/junjun_nihon](https://x.com/junjun_global)
+[https://x.com/junjun_global](https://x.com/junjun_global)
+
+## Discord
+커뮤니티 서버에서 새로운 기능 아이디어, 버그 신고, 질문 및 피드백을 받고 있습니다.
+[https://discord.gg/4eqyCHFz3a](https://discord.gg/4eqyCHFz3a)
