@@ -8,6 +8,9 @@ interface PageProps {
   }>;
 }
 
+// App Store URL
+const APP_STORE_URL = "https://apps.apple.com/us/app/junjun-study-community/id6798144458";
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { prefix } = await params;
   const user = await prisma.user.findFirst({
@@ -52,6 +55,24 @@ export default async function UserLinkPage({ params }: PageProps) {
 
   return (
     <main style={styles.container}>
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spinnerRotate {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .loading-spinner {
+          display: inline-block;
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          border-top-color: #ffffff;
+          animation: spinnerRotate 0.8s linear infinite;
+          vertical-align: middle;
+        }
+      `}</style>
+
       <div style={styles.content}>
         {/* Header: Study Community (small) & JunJun (large) above profile */}
         <div style={styles.headerSection}>
@@ -72,14 +93,59 @@ export default async function UserLinkPage({ params }: PageProps) {
 
         {/* Action Button & Platform Note */}
         <div style={styles.actionSection}>
-          <a href={appSchemeLink} style={styles.primaryButton}>
-            Open in App
+          <a
+            href={appSchemeLink}
+            id="open-in-app-btn"
+            style={styles.primaryButton}
+          >
+            <span id="btn-text">Open in App</span>
+            <span id="btn-spinner" style={{ display: "none" }} className="loading-spinner" />
           </a>
           <p style={styles.platformNote}>
             Available only on iOS, iPadOS, macOS, and visionOS.
           </p>
         </div>
       </div>
+
+      {/* Inline script to handle spinner stop after transition */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            function resetBtn() {
+              var btnText = document.getElementById('btn-text');
+              var btnSpinner = document.getElementById('btn-spinner');
+              if (btnText && btnSpinner) {
+                btnText.style.display = 'inline';
+                btnSpinner.style.display = 'none';
+              }
+            }
+
+            document.getElementById('open-in-app-btn')?.addEventListener('click', function() {
+              var btnText = document.getElementById('btn-text');
+              var btnSpinner = document.getElementById('btn-spinner');
+              if (btnText && btnSpinner) {
+                btnText.style.display = 'none';
+                btnSpinner.style.display = 'inline-block';
+              }
+              var start = Date.now();
+              setTimeout(function() {
+                if (Date.now() - start < 2500 && !document.hidden) {
+                  window.location.href = "${APP_STORE_URL}";
+                }
+                setTimeout(resetBtn, 2000);
+              }, 1500);
+            });
+
+            window.addEventListener('pageshow', resetBtn);
+            window.addEventListener('focus', resetBtn);
+            document.addEventListener('visibilitychange', function() {
+              if (!document.hidden) {
+                resetBtn();
+              }
+            });
+          `,
+        }}
+      />
     </main>
   );
 }
@@ -146,9 +212,11 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
   },
   primaryButton: {
-    display: "block",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     width: "100%",
-    padding: "14px 20px",
+    height: "48px",
     backgroundColor: "#000000",
     color: "#ffffff",
     borderRadius: "12px",
