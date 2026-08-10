@@ -1,0 +1,16 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["*.com.oyajun.junjunapp", "com.oyajun.junjunapp"],
+        "components": [
+          {
+            "/": "/u/*",
+            "comment": "Matches user share links"
+          }
+        ]
+      }
+    ]
+  }
+}
