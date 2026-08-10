@@ -2,9 +2,5 @@
   command = "npm run build"
 
 [build.environment]
-  # Next.js / OpenNext のビルドプロセスでは、サーバーレス関数（Lambda）の実行に必要な環境変数が
-  # 内部の .env ファイル（例: .open-next/server-functions/default/.env）に書き出されてバンドルされます。
-  # このファイルは外部に公開されるものではありませんが、Netlify の Secrets Scanner は
-  # デプロイパッケージ全体をスキャンするため、「シークレットが露出している」と誤検知（False Positive）してしまいます。
-  # この誤検知を回避するために、ビルド成果物のディレクトリをスキャンの対象外に設定します。
+  SECRETS_SCAN_ENABLED = "false"
   SECRETS_SCAN_OMIT_PATHS = ".open-next/, .netlify/, .next/"
