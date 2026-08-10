@@ -7,4 +7,4 @@
 
 ## X (旧Twitter) 
 開発者のXアカウント宛にメンションまたはDMにてご連絡ください。
-[https://x.com/jun2_app](https://x.com/jun2_app)
+[https://x.com/junjun_nihon](https://x.com/junjun_nihon)

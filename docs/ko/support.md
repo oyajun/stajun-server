@@ -7,4 +7,4 @@
 
 ## X (구 트위터)
 개발자의 X 계정으로 멘션이나 DM(다이렉트 메시지)을 보내주세요.
-[https://x.com/jun2_app](https://x.com/jun2_app)
+[https://x.com/junjun_nihon](https://x.com/junjun_global)
