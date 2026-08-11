@@ -1,6 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
-import { apiError, parseIntParam, requireOnboardedUser } from "@/lib/api";
+import { annotateUsers, apiError, parseIntParam, requireOnboardedUser } from "@/lib/api";
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
@@ -16,6 +16,7 @@ const USER_SELECT = {
  * GET /api/v1/users?q=<表示名>&limit=&offset= — 表示名（name）でユーザー検索。
  * 完全一致（大文字小文字は無視）を先頭に、続けて部分一致（曖昧一致）を返す。
  * 各グループ内は name 昇順。自分自身とオンボーディング未完了ユーザーは除外。
+ * 各ユーザーにフォロー状態(isFollowing)および学習状態(isStudying, studyingSince)を付与。
  * limit（既定20・最大50）と offset（既定0）でページング。
  */
 export async function GET(request: Request) {
@@ -104,23 +105,18 @@ export async function GET(request: Request) {
     );
   }
 
-  // フォロー状態を一括解決
-  const ids = rows.map((u) => u.id);
-  const follows = ids.length
-    ? await prisma.follow.findMany({
-        where: { followerId: user.id, followingId: { in: ids } },
-        select: { followingId: true },
-      })
-    : [];
-  const followingSet = new Set(follows.map((f) => f.followingId));
+  // フォロー状態および学習状態を一括解決
+  const annotated = await annotateUsers(user.id, rows);
 
   return Response.json({
-    users: rows.map((u) => ({
+    users: annotated.map((u) => ({
       id: u.id,
       name: u.name,
-      iconEmoji: u.iconEmoji ?? null,
-      iconBackgroundColor: u.iconBackgroundColor ?? null,
-      isFollowing: followingSet.has(u.id),
+      iconEmoji: u.iconEmoji,
+      iconBackgroundColor: u.iconBackgroundColor,
+      isFollowing: u.isFollowing,
+      isStudying: u.isStudying,
+      studyingSince: u.studyingSince ? u.studyingSince.toISOString() : null,
     })),
     pagination: {
       total,
@@ -130,3 +126,4 @@ export async function GET(request: Request) {
     },
   });
 }
+
