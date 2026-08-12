@@ -120,9 +120,9 @@ export async function GET(request: Request) {
   const ids = [...new Set(posts.map((p) => p.userId))];
   const authors = ids.length
     ? await prisma.user.findMany({
-        where: { id: { in: ids } },
-        select: AUTHOR_SELECT,
-      })
+      where: { id: { in: ids } },
+      select: AUTHOR_SELECT,
+    })
     : [];
   const authorById = new Map(authors.map((a) => [a.id, a]));
 
@@ -136,12 +136,12 @@ export async function GET(request: Request) {
       createdAt: p.createdAt,
       user: a
         ? {
-            id: a.id,
-            name: a.name || "名無し",
-            iconEmoji: a.iconEmoji || "👤",
-            iconBackgroundColor: a.iconBackgroundColor || "#CCCCCC",
-            isAnonymous: a.isAnonymous ?? false,
-          }
+          id: a.id,
+          name: a.name || "名無し",
+          iconEmoji: a.iconEmoji || "👤",
+          iconBackgroundColor: a.iconBackgroundColor || "#CCCCCC",
+          isAnonymous: a.isAnonymous ?? false,
+        }
         : null,
     };
   });
