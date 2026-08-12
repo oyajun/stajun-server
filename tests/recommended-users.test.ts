@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GET } from "@/app/api/v1/users/recommended/route";
+import { isValidComment } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import {
   apiRequest,
@@ -124,5 +125,12 @@ describe("GET /api/v1/users/recommended", () => {
     expect(status).toBe(200);
     const returnedIds = body.users.map((u: any) => u.id);
     expect(returnedIds).not.toContain(blockedUser.id);
+  });
+});
+
+describe("isValidComment", () => {
+  it("コメントは50文字を超えると無効になる", () => {
+    expect(isValidComment("a".repeat(50))).toBe(true);
+    expect(isValidComment("a".repeat(51))).toBe(false);
   });
 });

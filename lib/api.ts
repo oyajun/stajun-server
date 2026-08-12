@@ -262,8 +262,8 @@ export function isValidMinutes(v: unknown): v is number {
   );
 }
 
-// コメント: 任意。制御文字（改行等）不可・最大500文字。
-export const COMMENT_MAX = 500;
+// コメント: 任意。制御文字（改行等）不可・最大50文字。
+export const COMMENT_MAX = 50;
 export function isValidComment(v: unknown): v is string {
   if (typeof v !== "string") return false;
   if (CONTROL_CHARS_RE.test(v)) return false;

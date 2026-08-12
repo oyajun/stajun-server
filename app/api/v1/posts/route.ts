@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       return apiError(
         400,
         "INVALID_COMMENT",
-        "commentは500文字以内で、改行等の制御文字は使えません。",
+        "commentは50文字以内で、改行等の制御文字は使えません。",
       );
     }
     // 空白のみは未入力扱い（null）にする

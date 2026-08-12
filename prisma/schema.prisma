@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -9,22 +8,22 @@ datasource db {
 }
 
 model User {
-  id                  String    @id
+  id                  String        @id
   name                String?
   email               String
-  emailVerified       Boolean   @default(false)
+  emailVerified       Boolean       @default(false)
   image               String?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
   iconEmoji           String?
   iconBackgroundColor String?
   isAnonymous         Boolean?
   sessions            Session[]
   accounts            Account[]
-  following           Follow[]       @relation("Following")
-  followers           Follow[]       @relation("Followers")
-  blocking            Block[]        @relation("Blocking")
-  blockers            Block[]        @relation("Blockers")
+  following           Follow[]      @relation("Following")
+  followers           Follow[]      @relation("Followers")
+  blocking            Block[]       @relation("Blocking")
+  blockers            Block[]       @relation("Blockers")
   studySession        StudySession?
   studyPosts          StudyPost[]
 
@@ -88,8 +87,8 @@ model Follow {
   followingId String
   createdAt   DateTime @default(now())
 
-  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
 }
@@ -100,8 +99,8 @@ model Block {
   blockedId String
   createdAt DateTime @default(now())
 
-  blocker   User     @relation("Blocking", fields: [blockerId], references: [id], onDelete: Cascade)
-  blocked   User     @relation("Blockers", fields: [blockedId], references: [id], onDelete: Cascade)
+  blocker User @relation("Blocking", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked User @relation("Blockers", fields: [blockedId], references: [id], onDelete: Cascade)
 
   @@unique([blockerId, blockedId])
 }
@@ -113,17 +112,17 @@ model StudySession {
   userId    String   @id
   startedAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model StudyPost {
   id        String   @id @default(cuid())
   userId    String
   minutes   Int
-  comment   String?
+  comment   String?  @db.VarChar(50)
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
