@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GET } from "@/app/api/v1/users/recommended/route";
 import { isValidComment } from "@/lib/api";
@@ -31,8 +32,14 @@ describe("GET /api/v1/users/recommended", () => {
 
   it("今勉強中のユーザーが優先され、最新投稿・テストアカウント除外・フォロー済み除外が正しく動作する", async () => {
     // 1. 勉強中の未フォローユーザー (2人)
-    const studyingUser1 = await createUser({ name: "studying_user_1" });
-    const studyingUser2 = await createUser({ name: "studying_user_2" });
+    const studyingUser1 = await createUser({
+      name: "studying_user_1",
+      iconBackgroundColor: "#111111",
+    });
+    const studyingUser2 = await createUser({
+      name: "studying_user_2",
+      iconBackgroundColor: "#222222",
+    });
 
     const now = new Date();
     await prisma.studySession.create({
@@ -49,7 +56,10 @@ describe("GET /api/v1/users/recommended", () => {
     });
 
     // 2. 既にフォロー中の勉強中ユーザー (おすすめから除外されるべき)
-    const followedStudyingUser = await createUser({ name: "followed_studying" });
+    const followedStudyingUser = await createUser({
+      name: "followed_studying",
+      iconBackgroundColor: "#333333",
+    });
     await prisma.follow.create({
       data: { followerId: me.id, followingId: followedStudyingUser.id },
     });
@@ -58,7 +68,10 @@ describe("GET /api/v1/users/recommended", () => {
     });
 
     // 3. テスト用メールアドレスの勉強中ユーザー (おすすめから除外されるべき)
-    const testEmailUser = await createUser({ name: "test_email_user" });
+    const testEmailUser = await createUser({
+      name: "test_email_user",
+      iconBackgroundColor: "#444444",
+    });
     await prisma.user.update({
       where: { id: testEmailUser.id },
       data: { email: "test+1000@oyajun.com" },
@@ -68,8 +81,14 @@ describe("GET /api/v1/users/recommended", () => {
     });
 
     // 4. 投稿がある未フォローユーザー (穴埋め用)
-    const postingUser1 = await createUser({ name: "posting_user_1" });
-    const postingUser2 = await createUser({ name: "posting_user_2" });
+    const postingUser1 = await createUser({
+      name: "posting_user_1",
+      iconBackgroundColor: "#555555",
+    });
+    const postingUser2 = await createUser({
+      name: "posting_user_2",
+      iconBackgroundColor: "#666666",
+    });
 
     await prisma.studyPost.create({
       data: {
@@ -111,7 +130,10 @@ describe("GET /api/v1/users/recommended", () => {
   });
 
   it("ブロック関係のユーザーが除外される", async () => {
-    const blockedUser = await createUser({ name: "blocked_user" });
+    const blockedUser = await createUser({
+      name: "blocked_user",
+      iconBackgroundColor: "#777777",
+    });
     await prisma.block.create({
       data: { blockerId: me.id, blockedId: blockedUser.id },
     });
@@ -125,6 +147,60 @@ describe("GET /api/v1/users/recommended", () => {
     expect(status).toBe(200);
     const returnedIds = body.users.map((u: any) => u.id);
     expect(returnedIds).not.toContain(blockedUser.id);
+  });
+
+  it("名前または背景色がnullのユーザーは除外される", async () => {
+    const visibleUserId = randomUUID();
+    const hiddenByNameUserId = randomUUID();
+    const hiddenByColorUserId = randomUUID();
+    const now = new Date();
+
+    await prisma.user.create({
+      data: {
+        id: visibleUserId,
+        email: `visible-${visibleUserId}@vitest.stajun.test`,
+        emailVerified: true,
+        name: "visible_user",
+        iconBackgroundColor: "#123456",
+      },
+    });
+    await prisma.user.create({
+      data: {
+        id: hiddenByNameUserId,
+        email: `hidden-by-name-${hiddenByNameUserId}@vitest.stajun.test`,
+        emailVerified: true,
+        name: null,
+        iconBackgroundColor: "#abcdef",
+      },
+    });
+    await prisma.user.create({
+      data: {
+        id: hiddenByColorUserId,
+        email: `hidden-by-color-${hiddenByColorUserId}@vitest.stajun.test`,
+        emailVerified: true,
+        name: "hidden_by_color",
+        iconBackgroundColor: null,
+      },
+    });
+
+    await prisma.studySession.create({
+      data: { userId: visibleUserId, startedAt: now },
+    });
+    await prisma.studySession.create({
+      data: { userId: hiddenByNameUserId, startedAt: now },
+    });
+    await prisma.studySession.create({
+      data: { userId: hiddenByColorUserId, startedAt: now },
+    });
+
+    const res = await GET(apiRequest("GET", { token: me.token }));
+    const { status, body } = await readResponse(res);
+
+    expect(status).toBe(200);
+    const returnedIds = body.users.map((u: any) => u.id);
+    expect(returnedIds).toContain(visibleUserId);
+    expect(returnedIds).not.toContain(hiddenByNameUserId);
+    expect(returnedIds).not.toContain(hiddenByColorUserId);
   });
 });
 

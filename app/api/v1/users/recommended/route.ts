@@ -46,10 +46,11 @@ export async function GET(request: Request) {
     new Set([user.id, ...blockedIds, ...followingIds])
   );
 
-  // ユーザーの共通検索条件（オンボーディング完了 + テストユーザー除外）
+  // ユーザーの共通検索条件（名前または背景色が未設定のユーザー、およびテストユーザーを除外）
   const baseUserWhere: Prisma.UserWhereInput = {
     id: { notIn: excludedIds },
     name: { not: null },
+    iconBackgroundColor: { not: null },
     NOT: [
       { email: { startsWith: "test+", mode: "insensitive" } },
       {
