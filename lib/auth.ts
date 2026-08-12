@@ -48,7 +48,7 @@ export const auth = betterAuth({
   advanced: {
     disableOriginCheck: true, // Required for native mobile clients (iOS/Android)
     ipAddress: {
-      ipAddressHeaders: ["x-forwarded-for"],
+      ipAddressHeaders: ["x-nf-client-connection-ip"],
     }
   },
   plugins: [
