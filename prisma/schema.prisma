@@ -25,6 +25,7 @@ model User {
   blocking            Block[]       @relation("Blocking")
   blockers            Block[]       @relation("Blockers")
   studySession        StudySession?
+  deviceTokens        DeviceToken[]
   studyPosts          StudyPost[]
 
   @@unique([email])
@@ -125,4 +126,15 @@ model StudyPost {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

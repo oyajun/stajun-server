@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireOnboardedUser, studyingSinceThreshold } from "@/lib/api";
+import { sendToFollowers } from "@/lib/apns";
 
 /**
  * POST /api/v1/study-sessions/start — 勉強開始（勉強中状態をON）
@@ -29,6 +30,9 @@ export async function POST(request: Request) {
     update: { startedAt: now }, // 古い行はここで現在時刻に上書き
     select: { startedAt: true },
   });
+
+  // フォロワーへプッシュ通知（fire-and-forget: 勉強開始ユーザーのレスポンスを待たせない）
+  void sendToFollowers(user.id, user.name ?? "Someone").catch(() => {});
 
   return Response.json({ startedAt: session.startedAt });
 }
