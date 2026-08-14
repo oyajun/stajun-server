@@ -22,6 +22,8 @@ export async function POST(request: Request) {
     return apiError(400, "INVALID_TOKEN", "token が不正です。");
   }
 
+  console.log(`[APNs] Registering device token for userId=${user.id}: ${token.slice(0, 10)}...`);
+
   // token は UNIQUE 制約あり。同じトークンが別ユーザーから来た場合も含め、
   // userId を最新のもので上書きする（端末の再ログイン対応）。
   await prisma.deviceToken.upsert({

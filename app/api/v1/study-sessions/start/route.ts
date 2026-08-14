@@ -21,6 +21,7 @@ export async function POST(request: Request) {
 
   // 既に勉強中（24時間以内）ならサーバー側は黙って維持する。
   if (existing && existing.startedAt > studyingSinceThreshold(now)) {
+    console.log(`[StudySession] User ${user.id} already studying (startedAt=${existing.startedAt.toISOString()}). Skipping notification.`);
     return Response.json({ startedAt: existing.startedAt });
   }
 
@@ -31,8 +32,12 @@ export async function POST(request: Request) {
     select: { startedAt: true },
   });
 
+  console.log(`[StudySession] New session started for user ${user.id}. Dispatching push notifications...`);
+
   // フォロワーへプッシュ通知（fire-and-forget: 勉強開始ユーザーのレスポンスを待たせない）
-  void sendToFollowers(user.id, user.name ?? "Someone").catch(() => {});
+  void sendToFollowers(user.id, user.name ?? "Someone").catch((err) => {
+    console.error("[StudySession] sendToFollowers error:", err);
+  });
 
   return Response.json({ startedAt: session.startedAt });
 }

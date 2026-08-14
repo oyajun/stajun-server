@@ -6,20 +6,32 @@ import { prisma } from "@/lib/prisma";
 // 設定
 // ---------------------------------------------------------------------------
 
+function normalizePrivateKey(raw: string): string {
+  let key = raw.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1);
+  }
+  key = key.replace(/\\n/g, "\n");
+  const cleaned = key
+    .replace(/-----BEGIN PRIVATE KEY-----/g, "")
+    .replace(/-----END PRIVATE KEY-----/g, "")
+    .replace(/\s+/g, "");
+  const wrapped = cleaned.match(/.{1,64}/g)?.join("\n") ?? cleaned;
+  return `-----BEGIN PRIVATE KEY-----\n${wrapped}\n-----END PRIVATE KEY-----`;
+}
+
 const APNS_KEY_ID = process.env.APNS_KEY_ID ?? "";
 const APNS_TEAM_ID = process.env.APNS_TEAM_ID ?? "";
 const APNS_BUNDLE_ID = process.env.APNS_BUNDLE_ID ?? "";
-// .p8 の内容をそのまま環境変数に入れる（改行は \n でエスケープ）
-const APNS_PRIVATE_KEY = (process.env.APNS_PRIVATE_KEY ?? "").replace(
-  /\\n/g,
-  "\n",
-);
-// "true" にすると本番 APNs エンドポイントを使用
+const APNS_PRIVATE_KEY = normalizePrivateKey(process.env.APNS_PRIVATE_KEY ?? "");
 const IS_PRODUCTION = process.env.APNS_PRODUCTION === "true";
 
-const APNS_HOST = IS_PRODUCTION
+const PRIMARY_APNS_HOST = IS_PRODUCTION
   ? "api.push.apple.com"
   : "api.sandbox.push.apple.com";
+const FALLBACK_APNS_HOST = IS_PRODUCTION
+  ? "api.sandbox.push.apple.com"
+  : "api.push.apple.com";
 
 /** JWT の有効期間（APNs は 60 分以内のものしか受け付けない） */
 const JWT_TTL_MS = 50 * 60 * 1000; // 50 分
@@ -78,24 +90,18 @@ type SendResult =
   | { ok: true }
   | { ok: false; reason: "invalid_token" | "other"; error?: string };
 
-/**
- * 指定トークンに APNs プッシュ通知を送る。
- * BadDeviceToken / Unregistered は `{ ok: false, reason: "invalid_token" }` を返す。
- * その他のエラーは `{ ok: false, reason: "other" }` を返す。
- */
-async function sendPushNotification(
+async function sendPushNotificationToHost(
+  host: string,
   deviceToken: string,
   payload: ApnsPayload,
+  jwt: string,
 ): Promise<SendResult> {
-  if (!APNS_KEY_ID || !APNS_TEAM_ID || !APNS_PRIVATE_KEY || !APNS_BUNDLE_ID) {
-    // APNs が未設定の場合は静かにスキップ（開発環境など）
-    return { ok: false, reason: "other", error: "APNs not configured" };
-  }
-
   return new Promise((resolve) => {
-    const client = connect(`https://${APNS_HOST}`);
+    console.log(`[APNs] Connecting to https://${host} for token ${deviceToken.slice(0, 10)}...`);
+    const client = connect(`https://${host}`);
 
     client.on("error", (err) => {
+      console.error(`[APNs] HTTP/2 client error on ${host}:`, err);
       client.destroy();
       resolve({ ok: false, reason: "other", error: String(err) });
     });
@@ -105,8 +111,8 @@ async function sendPushNotification(
       ":method": "POST",
       ":path": `/3/device/${deviceToken}`,
       ":scheme": "https",
-      ":authority": APNS_HOST,
-      authorization: `bearer ${getJwt()}`,
+      ":authority": host,
+      authorization: `bearer ${jwt}`,
       "apns-topic": APNS_BUNDLE_ID,
       "apns-push-type": "alert",
       "content-type": "application/json",
@@ -129,10 +135,10 @@ async function sendPushNotification(
 
     req.on("end", () => {
       client.close();
+      console.log(`[APNs] [${host}] Status: ${statusCode}, Body: ${responseBody || "(empty)"}`);
       if (statusCode === 200) {
         resolve({ ok: true });
       } else {
-        // APNs エラー詳細を解析
         let reason = "";
         try {
           const parsed = JSON.parse(responseBody) as { reason?: string };
@@ -152,6 +158,54 @@ async function sendPushNotification(
   });
 }
 
+/**
+ * 指定トークンに APNs プッシュ通知を送る。
+ * メインの環境（本番/Sandbox）で失敗した場合、フォールバック環境でも試行する。
+ */
+async function sendPushNotification(
+  deviceToken: string,
+  payload: ApnsPayload,
+): Promise<SendResult> {
+  if (!APNS_KEY_ID || !APNS_TEAM_ID || !APNS_PRIVATE_KEY || !APNS_BUNDLE_ID) {
+    console.error("[APNs] Missing configuration:", {
+      hasKeyId: !!APNS_KEY_ID,
+      hasTeamId: !!APNS_TEAM_ID,
+      hasPrivateKey: !!APNS_PRIVATE_KEY,
+      hasBundleId: !!APNS_BUNDLE_ID,
+    });
+    return { ok: false, reason: "other", error: "APNs not configured" };
+  }
+
+  let jwt: string;
+  try {
+    jwt = getJwt();
+  } catch (err) {
+    console.error("[APNs] Failed to generate JWT:", err);
+    return { ok: false, reason: "other", error: String(err) };
+  }
+
+  // 1. まずメインの APNs サーバーに送信
+  const primaryResult = await sendPushNotificationToHost(
+    PRIMARY_APNS_HOST,
+    deviceToken,
+    payload,
+    jwt,
+  );
+  if (primaryResult.ok) {
+    return primaryResult;
+  }
+
+  // 2. BadDeviceToken / エラーの場合、環境違い（Sandbox ↔ Production）の可能性があるのでフォールバック
+  console.log(`[APNs] Retrying with fallback host https://${FALLBACK_APNS_HOST}...`);
+  const fallbackResult = await sendPushNotificationToHost(
+    FALLBACK_APNS_HOST,
+    deviceToken,
+    payload,
+    jwt,
+  );
+  return fallbackResult;
+}
+
 // ---------------------------------------------------------------------------
 // フォロワー全員への送信
 // ---------------------------------------------------------------------------
@@ -165,11 +219,14 @@ export async function sendToFollowers(
   studyingUserId: string,
   userName: string,
 ): Promise<void> {
+  console.log(`[APNs] sendToFollowers triggered for userId=${studyingUserId}, userName=${userName}`);
+
   // フォロワー一覧を取得
   const followers = await prisma.follow.findMany({
     where: { followingId: studyingUserId },
     select: { followerId: true },
   });
+  console.log(`[APNs] Found ${followers.length} followers for ${studyingUserId}`);
   if (followers.length === 0) return;
 
   const followerIds = followers.map((f) => f.followerId);
@@ -177,8 +234,9 @@ export async function sendToFollowers(
   // フォロワーのデバイストークンを取得
   const deviceTokens = await prisma.deviceToken.findMany({
     where: { userId: { in: followerIds } },
-    select: { id: true, token: true },
+    select: { id: true, token: true, userId: true },
   });
+  console.log(`[APNs] Found ${deviceTokens.length} device tokens across ${followerIds.length} followers`);
   if (deviceTokens.length === 0) return;
 
   const payload: ApnsPayload = {
@@ -193,22 +251,23 @@ export async function sendToFollowers(
 
   // 全トークンに並列送信
   const results = await Promise.allSettled(
-    deviceTokens.map(async (dt: { id: string; token: string }) => {
+    deviceTokens.map(async (dt: { id: string; token: string; userId: string }) => {
       const result = await sendPushNotification(dt.token, payload);
-      return { ...result, id: dt.id };
+      return { ...result, id: dt.id, token: dt.token };
     }),
   );
 
   // 無効なトークンを DB から削除
   const invalidIds = results
     .filter(
-      (r): r is PromiseFulfilledResult<SendResult & { id: string }> =>
+      (r): r is PromiseFulfilledResult<SendResult & { id: string; token: string }> =>
         r.status === "fulfilled",
     )
     .filter((r) => !r.value.ok && r.value.reason === "invalid_token")
     .map((r) => r.value.id);
 
   if (invalidIds.length > 0) {
+    console.log(`[APNs] Deleting ${invalidIds.length} invalid device tokens from DB`);
     await prisma.deviceToken.deleteMany({ where: { id: { in: invalidIds } } });
   }
 }

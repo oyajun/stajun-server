@@ -47,6 +47,7 @@ export const auth = betterAuth({
   },
   advanced: {
     disableOriginCheck: true, // Required for native mobile clients (iOS/Android)
+    disableCSRFCheck: true,
     ipAddress: {
       ipAddressHeaders: ["x-nf-client-connection-ip"],
     }
