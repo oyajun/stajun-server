@@ -73,10 +73,12 @@ function getJwt(): string {
 interface ApnsPayload {
   aps: {
     alert: {
-      /** デバイス言語に合わせて自動ローカライズされるキー（Localizable.xcstrings で定義） */
-      "title-loc-key": string;
+      /** 通知タイトル（太字表示） */
+      title?: string;
+      /** デバイス言語に合わせて自動ローカライズされる本文キー（Localizable.xcstrings で定義） */
+      "loc-key": string;
       /** ローカライズキーに埋め込む引数 */
-      "title-loc-args": string[];
+      "loc-args": string[];
     };
     sound: string;
   };
@@ -231,8 +233,9 @@ export async function sendToFollowers(
   const payload: ApnsPayload = {
     aps: {
       alert: {
-        "title-loc-key": "NOTIF_STUDY_START_TITLE",
-        "title-loc-args": [userName],
+        title: "JunJun",
+        "loc-key": "NOTIF_STUDY_START_TITLE",
+        "loc-args": [userName],
       },
       sound: "default",
     },
