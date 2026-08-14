@@ -97,11 +97,9 @@ async function sendPushNotificationToHost(
   jwt: string,
 ): Promise<SendResult> {
   return new Promise((resolve) => {
-    console.log(`[APNs] Connecting to https://${host} for token ${deviceToken.slice(0, 10)}...`);
     const client = connect(`https://${host}`);
 
     client.on("error", (err) => {
-      console.error(`[APNs] HTTP/2 client error on ${host}:`, err);
       client.destroy();
       resolve({ ok: false, reason: "other", error: String(err) });
     });
@@ -135,7 +133,6 @@ async function sendPushNotificationToHost(
 
     req.on("end", () => {
       client.close();
-      console.log(`[APNs] [${host}] Status: ${statusCode}, Body: ${responseBody || "(empty)"}`);
       if (statusCode === 200) {
         resolve({ ok: true });
       } else {
@@ -147,7 +144,11 @@ async function sendPushNotificationToHost(
           reason = responseBody;
         }
         const isInvalidToken =
-          reason === "BadDeviceToken" || reason === "Unregistered";
+          reason === "BadDeviceToken" ||
+          reason === "Unregistered" ||
+          reason === "BadEnvironmentKeyInToken" ||
+          reason === "DeviceTokenNotForTopic" ||
+          reason === "TopicDisallowed";
         resolve({
           ok: false,
           reason: isInvalidToken ? "invalid_token" : "other",
@@ -167,12 +168,6 @@ async function sendPushNotification(
   payload: ApnsPayload,
 ): Promise<SendResult> {
   if (!APNS_KEY_ID || !APNS_TEAM_ID || !APNS_PRIVATE_KEY || !APNS_BUNDLE_ID) {
-    console.error("[APNs] Missing configuration:", {
-      hasKeyId: !!APNS_KEY_ID,
-      hasTeamId: !!APNS_TEAM_ID,
-      hasPrivateKey: !!APNS_PRIVATE_KEY,
-      hasBundleId: !!APNS_BUNDLE_ID,
-    });
     return { ok: false, reason: "other", error: "APNs not configured" };
   }
 
@@ -180,7 +175,6 @@ async function sendPushNotification(
   try {
     jwt = getJwt();
   } catch (err) {
-    console.error("[APNs] Failed to generate JWT:", err);
     return { ok: false, reason: "other", error: String(err) };
   }
 
@@ -195,8 +189,7 @@ async function sendPushNotification(
     return primaryResult;
   }
 
-  // 2. BadDeviceToken / エラーの場合、環境違い（Sandbox ↔ Production）の可能性があるのでフォールバック
-  console.log(`[APNs] Retrying with fallback host https://${FALLBACK_APNS_HOST}...`);
+  // 2. エラーの場合、環境違い（Sandbox ↔ Production）の可能性があるのでフォールバック
   const fallbackResult = await sendPushNotificationToHost(
     FALLBACK_APNS_HOST,
     deviceToken,
@@ -212,21 +205,18 @@ async function sendPushNotification(
 
 /**
  * `studyingUserId` のフォロワー全員にプッシュ通知を送る。
- * 無効なトークン（BadDeviceToken / Unregistered）は DB から自動削除する。
+ * 無効なトークン（BadDeviceToken / Unregistered / BadEnvironmentKeyInToken等）は DB から自動削除する。
  * 送信失敗はエラーをスローせずに握りつぶす（呼び出し元のレスポンスに影響させない）。
  */
 export async function sendToFollowers(
   studyingUserId: string,
   userName: string,
 ): Promise<void> {
-  console.log(`[APNs] sendToFollowers triggered for userId=${studyingUserId}, userName=${userName}`);
-
   // フォロワー一覧を取得
   const followers = await prisma.follow.findMany({
     where: { followingId: studyingUserId },
     select: { followerId: true },
   });
-  console.log(`[APNs] Found ${followers.length} followers for ${studyingUserId}`);
   if (followers.length === 0) return;
 
   const followerIds = followers.map((f) => f.followerId);
@@ -236,7 +226,6 @@ export async function sendToFollowers(
     where: { userId: { in: followerIds } },
     select: { id: true, token: true, userId: true },
   });
-  console.log(`[APNs] Found ${deviceTokens.length} device tokens across ${followerIds.length} followers`);
   if (deviceTokens.length === 0) return;
 
   const payload: ApnsPayload = {
@@ -267,7 +256,6 @@ export async function sendToFollowers(
     .map((r) => r.value.id);
 
   if (invalidIds.length > 0) {
-    console.log(`[APNs] Deleting ${invalidIds.length} invalid device tokens from DB`);
     await prisma.deviceToken.deleteMany({ where: { id: { in: invalidIds } } });
   }
 }
