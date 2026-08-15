@@ -31,12 +31,8 @@ export async function POST(request: Request) {
     select: { startedAt: true },
   });
 
-  // フォロワーへプッシュ通知（Serverless のフリーズを防ぐため完了を待機）
-  try {
-    await sendToFollowers(user.id, user.name ?? "Someone");
-  } catch {
-    // 通知失敗はレスポンスに影響させない
-  }
+  // フォロワーへプッシュ通知（レスポンスをブロックしない）
+  void sendToFollowers(user.id, user.name ?? "Someone");
 
   return Response.json({ startedAt: session.startedAt });
 }
