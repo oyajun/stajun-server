@@ -23,10 +23,14 @@ These Terms of Service (hereinafter referred to as the "Terms") define the condi
 2. If a User delays payment of the usage fees, the App developer may suspend the provision of the Service to the User.
 3. The App developer will not refund any usage fees once paid (except where a refund is required by law).
 
-## Article 5 (User-Generated Content)
+## Article 5 (User-Generated Content and Community Standards)
 1. The User represents and warrants to the App developer that they have the lawful right to post or upload any content (text, comments, study time data, etc.; hereinafter referred to as "Posted Content") they share on the Service, and that such content does not infringe upon the rights of any third party.
 2. The copyright of the Posted Content remains with the User who posted it. However, the App developer may use (including reproduction, modification, public transmission, etc.) the Posted Content free of charge and on a non-exclusive basis within the scope necessary for the provision, maintenance, improvement, and promotion of the Service.
-3. If the App developer determines that any Posted Content violates these Terms, the App developer may delete such Posted Content without prior notice to the User.
+3. **Zero-Tolerance Policy for Objectionable Content and Abusive Users**
+   The Service maintains a strict zero-tolerance policy against objectionable content and abusive behavior. Users must not post, upload, or share content that is offensive, defamatory, harassing, threatening, discriminatory, sexually explicit, violent, infringing on privacy, or otherwise objectionable, nor engage in any abusive behavior toward other users.
+4. **Reporting, Blocking, and 24-Hour Moderation Action**
+   Users can report objectionable content and block abusive users using the reporting and blocking features provided within the App. The App developer will review reported content within 24 hours of receipt, promptly remove any content deemed objectionable or in violation of these Terms, and take necessary measures, including suspending or permanently terminating the account of the offending user without prior notice.
+5. If the App developer determines that any Posted Content violates these Terms, the App developer may delete such Posted Content and/or suspend the user's account without prior notice, regardless of whether a report was received.
 
 ## Article 6 (Prohibited Actions)
 In using the Service, Users must not engage in the following acts:
