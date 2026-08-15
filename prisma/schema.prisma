@@ -27,6 +27,8 @@ model User {
   studySession        StudySession?
   deviceTokens        DeviceToken[]
   studyPosts          StudyPost[]
+  notificationsReceived Notification[] @relation("NotificationsReceived")
+  notificationsActed   Notification[] @relation("NotificationsActed")
 
   @@unique([email])
   @@map("user")
@@ -124,6 +126,7 @@ model StudyPost {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notifications Notification[]
 
   @@index([userId, createdAt])
 }
@@ -138,3 +141,22 @@ model DeviceToken {
 
   @@index([userId])
 }
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  actorId   String?
+  type      String
+  postId    String?
+  extra     String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User       @relation("NotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
+  actor User?      @relation("NotificationsActed", fields: [actorId], references: [id], onDelete: Cascade)
+  post  StudyPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, isRead])
+}
+

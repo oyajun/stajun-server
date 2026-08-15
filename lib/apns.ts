@@ -82,6 +82,7 @@ interface ApnsPayload {
     };
     sound: string;
   };
+  [key: string]: unknown;
 }
 
 // ---------------------------------------------------------------------------
@@ -262,3 +263,55 @@ export async function sendToFollowers(
     await prisma.deviceToken.deleteMany({ where: { id: { in: invalidIds } } });
   }
 }
+
+/**
+ * 対象ユーザー（targetUserId）にフォロー通知を送る。
+ * 無効なトークンは DB から自動削除する。
+ * 送信失敗はエラーをスローせずに握りつぶす。
+ */
+export async function sendFollowNotification(
+  targetUserId: string,
+  actorName: string,
+  actorId: string,
+  notificationId?: string,
+): Promise<void> {
+  const deviceTokens = await prisma.deviceToken.findMany({
+    where: { userId: targetUserId },
+    select: { id: true, token: true, userId: true },
+  });
+  if (deviceTokens.length === 0) return;
+
+  const payload: ApnsPayload = {
+    aps: {
+      alert: {
+        title: "JunJun",
+        "loc-key": "NOTIF_FOLLOW_BODY",
+        "loc-args": [actorName],
+      },
+      sound: "default",
+    },
+    type: "FOLLOW",
+    actorId,
+    ...(notificationId ? { notificationId } : {}),
+  };
+
+  const results = await Promise.allSettled(
+    deviceTokens.map(async (dt: { id: string; token: string; userId: string }) => {
+      const result = await sendPushNotification(dt.token, payload);
+      return { ...result, id: dt.id, token: dt.token };
+    }),
+  );
+
+  const invalidIds = results
+    .filter(
+      (r): r is PromiseFulfilledResult<SendResult & { id: string; token: string }> =>
+        r.status === "fulfilled",
+    )
+    .filter((r) => !r.value.ok && r.value.reason === "invalid_token")
+    .map((r) => r.value.id);
+
+  if (invalidIds.length > 0) {
+    await prisma.deviceToken.deleteMany({ where: { id: { in: invalidIds } } });
+  }
+}
+

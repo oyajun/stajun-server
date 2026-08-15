@@ -4,6 +4,7 @@ import {
   requireOnboardedUser,
   resolveOnboardedUserId,
 } from "@/lib/api";
+import { sendFollowNotification } from "@/lib/apns";
 
 /** PUT /api/v1/follow/:id — :id をフォロー（冪等・承認制なし） */
 export async function PUT(
@@ -23,14 +24,35 @@ export async function PUT(
     return apiError(400, "CANNOT_FOLLOW_SELF", "自分自身はフォローできません。");
   }
 
-  // 既にフォロー済みでもエラーにせず冪等に扱う
-  await prisma.follow.upsert({
+  const existingFollow = await prisma.follow.findUnique({
     where: {
       followerId_followingId: { followerId: user.id, followingId: targetId },
     },
-    create: { followerId: user.id, followingId: targetId },
-    update: {},
   });
+
+  if (!existingFollow) {
+    await prisma.follow.create({
+      data: { followerId: user.id, followingId: targetId },
+    });
+
+    // 通知レコードを作成（未読）
+    const notification = await prisma.notification.create({
+      data: {
+        userId: targetId,
+        actorId: user.id,
+        type: "FOLLOW",
+        isRead: false,
+      },
+    });
+
+    // APNs プッシュ通知を送信（レスポンスをブロックしない）
+    void sendFollowNotification(
+      targetId,
+      user.name ?? "",
+      user.id,
+      notification.id,
+    );
+  }
 
   return Response.json({ isFollowing: true });
 }
@@ -55,5 +77,15 @@ export async function DELETE(
     where: { followerId: user.id, followingId: targetId },
   });
 
+  // フォロー解除されたら対応する通知レコードも削除
+  await prisma.notification.deleteMany({
+    where: {
+      userId: targetId,
+      actorId: user.id,
+      type: "FOLLOW",
+    },
+  });
+
   return new Response(null, { status: 204 });
 }
+

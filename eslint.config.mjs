@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "generated/**",
   ]),
   {
     // テストは動的なレスポンスbodyを扱うため any を許可する
