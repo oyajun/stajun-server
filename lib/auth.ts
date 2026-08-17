@@ -63,7 +63,9 @@ export const auth = betterAuth({
       storeOTP: "hashed",
     }),
     bearer(),
-    dash(),
+    dash({
+      activityTracking: { enabled: true },
+    }),
     anonymous(),
     openAPI()
   ],
