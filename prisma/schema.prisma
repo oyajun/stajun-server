@@ -8,27 +8,28 @@ datasource db {
 }
 
 model User {
-  id                  String        @id
-  name                String?
-  email               String
-  emailVerified       Boolean       @default(false)
-  image               String?
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
-  iconEmoji           String?
-  iconBackgroundColor String?
-  isAnonymous         Boolean?
-  sessions            Session[]
-  accounts            Account[]
-  following           Follow[]      @relation("Following")
-  followers           Follow[]      @relation("Followers")
-  blocking            Block[]       @relation("Blocking")
-  blockers            Block[]       @relation("Blockers")
-  studySession        StudySession?
-  deviceTokens        DeviceToken[]
-  studyPosts          StudyPost[]
+  id                    String         @id
+  name                  String?
+  email                 String
+  emailVerified         Boolean        @default(false)
+  image                 String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  iconEmoji             String?
+  iconBackgroundColor   String?
+  isAnonymous           Boolean?
+  lastActiveAt          DateTime?
+  sessions              Session[]
+  accounts              Account[]
+  following             Follow[]       @relation("Following")
+  followers             Follow[]       @relation("Followers")
+  blocking              Block[]        @relation("Blocking")
+  blockers              Block[]        @relation("Blockers")
+  studySession          StudySession?
+  deviceTokens          DeviceToken[]
+  studyPosts            StudyPost[]
   notificationsReceived Notification[] @relation("NotificationsReceived")
-  notificationsActed   Notification[] @relation("NotificationsActed")
+  notificationsActed    Notification[] @relation("NotificationsActed")
 
   @@unique([email])
   @@map("user")
@@ -125,7 +126,7 @@ model StudyPost {
   comment   String?  @db.VarChar(50)
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   notifications Notification[]
 
   @@index([userId, createdAt])
@@ -159,4 +160,3 @@ model Notification {
   @@index([userId, createdAt])
   @@index([userId, isRead])
 }
-

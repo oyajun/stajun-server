@@ -40,6 +40,9 @@ export const auth = betterAuth({
         type: "string",
         input: true,
       },
+      lastActiveAt: {
+        type: "date",
+      },
     },
     deleteUser: {
       enabled: true,
