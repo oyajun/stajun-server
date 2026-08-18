@@ -215,9 +215,12 @@ export async function sendToFollowers(
   studyingUserId: string,
   userName: string,
 ): Promise<void> {
-  // フォロワー一覧を取得
+  // ミュートしていないフォロワー一覧を取得
   const followers = await prisma.follow.findMany({
-    where: { followingId: studyingUserId },
+    where: {
+      followingId: studyingUserId,
+      muteStudyStartNotification: false,
+    },
     select: { followerId: true },
   });
   if (followers.length === 0) return;

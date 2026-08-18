@@ -41,7 +41,7 @@ export async function GET(
           followingId: target.id,
         },
       },
-      select: { id: true },
+      select: { id: true, muteStudyStartNotification: true },
     }),
     prisma.studySession.findFirst({
       where: { userId: target.id, startedAt: { gt: studyingSinceThreshold() } },
@@ -55,6 +55,7 @@ export async function GET(
     iconEmoji: target.iconEmoji || "👤",
     iconBackgroundColor: target.iconBackgroundColor || "#CCCCCC",
     isFollowing: follow !== null,
+    isMuted: follow ? follow.muteStudyStartNotification : false,
     isStudying: activeSession !== null,
     studyingSince: activeSession?.startedAt ?? null,
   });

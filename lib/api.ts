@@ -313,26 +313,31 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
   const [follows, activeSessions] = await Promise.all([
     prisma.follow.findMany({
       where: { followerId: viewerId, followingId: { in: ids } },
-      select: { followingId: true },
+      select: { followingId: true, muteStudyStartNotification: true },
     }),
     prisma.studySession.findMany({
       where: { userId: { in: ids }, startedAt: { gt: studyingSinceThreshold() } },
       select: { userId: true, startedAt: true },
     }),
   ]);
-  const followingSet = new Set(follows.map((f) => f.followingId));
+  const followingMap = new Map(
+    follows.map((f) => [f.followingId, f.muteStudyStartNotification]),
+  );
   // StudySession は1ユーザー1行なので userId で一意にマップできる。
   const studyingSince = new Map(
     activeSessions.map((s) => [s.userId, s.startedAt]),
   );
   return rows.map((r) => {
     const since = studyingSince.get(r.id) ?? null;
+    const isFollowing = followingMap.has(r.id);
+    const isMuted = isFollowing ? (followingMap.get(r.id) ?? false) : false;
     return {
       id: r.id,
       name: r.name || "名無し",
       iconEmoji: r.iconEmoji || "👤",
       iconBackgroundColor: r.iconBackgroundColor || "#CCCCCC",
-      isFollowing: followingSet.has(r.id),
+      isFollowing,
+      isMuted,
       isStudying: since !== null,
       studyingSince: since,
     };
