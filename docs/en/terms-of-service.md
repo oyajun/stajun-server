@@ -1,6 +1,6 @@
 # Terms of Service
 
-*Note: These Terms of Service are provided in Japanese, English, and Korean. The Japanese version is the official governing version. In the event of any conflict or inconsistency between the Japanese version and any translated versions, the Japanese version shall prevail.*
+*Note: These Terms of Service are provided in Japanese, English, and Korean for reference. The Japanese version is the official governing version. In the event of any conflict or inconsistency between the Japanese version and any translated versions, the Japanese version shall prevail. [Official Japanese Terms of Service](/ja/terms-of-service)*
 
 These Terms of Service (hereinafter referred to as the "Terms") define the conditions of use for the services (hereinafter referred to as the "Service") provided by "JunJun - Study SNS" (hereinafter referred to as the "App"). All users (hereinafter referred to as "Users") shall use the Service in accordance with these Terms.
 

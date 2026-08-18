@@ -1,6 +1,6 @@
 # Privacy Policy
 
-*Note: This Privacy Policy is provided in Japanese, English, and Korean. The Japanese version is the official governing version. In the event of any conflict or inconsistency between the Japanese version and any translated versions, the Japanese version shall prevail.*
+*Note: This Privacy Policy is provided in Japanese, English, and Korean for reference. The Japanese version is the official governing version. In the event of any conflict or inconsistency between the Japanese version and any translated versions, the Japanese version shall prevail. [Official Japanese Privacy Policy](/ja/privacy-policy)*
 
 "JunJun - Study SNS" (hereinafter referred to as the "App") establishes the following privacy policy (hereinafter referred to as the "Policy") regarding the handling of users' personal information within the App.
 
