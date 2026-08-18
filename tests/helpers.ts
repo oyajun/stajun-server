@@ -73,6 +73,7 @@ export async function cleanupTestData(): Promise<void> {
   });
   await prisma.studySession.deleteMany({ where: { userId: { in: ids } } });
   await prisma.studyPost.deleteMany({ where: { userId: { in: ids } } });
+  await prisma.pushNotificationSetting.deleteMany({ where: { userId: { in: ids } } });
   await prisma.session.deleteMany({ where: { userId: { in: ids } } });
   await prisma.account.deleteMany({ where: { userId: { in: ids } } });
   await prisma.user.deleteMany({ where: { id: { in: ids } } });

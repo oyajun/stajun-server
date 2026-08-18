@@ -28,8 +28,9 @@ model User {
   studySession          StudySession?
   deviceTokens          DeviceToken[]
   studyPosts            StudyPost[]
-  notificationsReceived Notification[] @relation("NotificationsReceived")
-  notificationsActed    Notification[] @relation("NotificationsActed")
+  notificationsReceived Notification[]           @relation("NotificationsReceived")
+  notificationsActed    Notification[]           @relation("NotificationsActed")
+  pushNotificationSetting PushNotificationSetting?
 
   @@unique([email])
   @@map("user")
@@ -160,4 +161,14 @@ model Notification {
 
   @@index([userId, createdAt])
   @@index([userId, isRead])
+}
+
+model PushNotificationSetting {
+  userId     String   @id
+  enabled    Boolean  @default(true)
+  follow     Boolean  @default(true)
+  studyStart Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -215,11 +215,22 @@ export async function sendToFollowers(
   studyingUserId: string,
   userName: string,
 ): Promise<void> {
-  // ミュートしていないフォロワー一覧を取得
+  // ミュートしていないフォロワー一覧を取得（プッシュ通知設定で無効化されているユーザーは除外）
   const followers = await prisma.follow.findMany({
     where: {
       followingId: studyingUserId,
       muteStudyStartNotification: 0,
+      follower: {
+        OR: [
+          { pushNotificationSetting: null },
+          {
+            pushNotificationSetting: {
+              enabled: true,
+              studyStart: true,
+            },
+          },
+        ],
+      },
     },
     select: { followerId: true },
   });
@@ -269,6 +280,7 @@ export async function sendToFollowers(
 
 /**
  * 対象ユーザー（targetUserId）にフォロー通知を送る。
+ * プッシュ通知設定で無効化されている場合は送信しない。
  * 無効なトークンは DB から自動削除する。
  * 送信失敗はエラーをスローせずに握りつぶす。
  */
@@ -278,6 +290,15 @@ export async function sendFollowNotification(
   actorId: string,
   notificationId?: string,
 ): Promise<void> {
+  // 対象ユーザーのプッシュ通知設定をチェック
+  const setting = await prisma.pushNotificationSetting.findUnique({
+    where: { userId: targetUserId },
+    select: { enabled: true, follow: true },
+  });
+  if (setting && (!setting.enabled || !setting.follow)) {
+    return;
+  }
+
   const deviceTokens = await prisma.deviceToken.findMany({
     where: { userId: targetUserId },
     select: { id: true, token: true, userId: true },
