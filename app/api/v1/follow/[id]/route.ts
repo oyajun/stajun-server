@@ -54,8 +54,12 @@ export async function PUT(
     );
   }
 
-  const isMuted = existingFollow ? existingFollow.muteStudyStartNotification : false;
-  return Response.json({ isFollowing: true, isMuted });
+  const muteMode = existingFollow ? existingFollow.muteStudyStartNotification : 0;
+  return Response.json({
+    isFollowing: true,
+    muteStudyStartNotification: muteMode,
+    isMuted: muteMode === 1,
+  });
 }
 
 /** DELETE /api/v1/follow/:id — :id をフォロー解除（冪等） */

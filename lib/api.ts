@@ -330,14 +330,15 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
   return rows.map((r) => {
     const since = studyingSince.get(r.id) ?? null;
     const isFollowing = followingMap.has(r.id);
-    const isMuted = isFollowing ? (followingMap.get(r.id) ?? false) : false;
+    const muteMode = isFollowing ? (followingMap.get(r.id) ?? 0) : 0;
     return {
       id: r.id,
       name: r.name || "名無し",
       iconEmoji: r.iconEmoji || "👤",
       iconBackgroundColor: r.iconBackgroundColor || "#CCCCCC",
       isFollowing,
-      isMuted,
+      muteStudyStartNotification: muteMode,
+      isMuted: muteMode === 1,
       isStudying: since !== null,
       studyingSince: since,
     };

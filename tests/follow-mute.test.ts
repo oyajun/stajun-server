@@ -29,7 +29,7 @@ describe("Follow Mute Notifications API", () => {
     await cleanupTestData();
   });
 
-  it("defaults muteStudyStartNotification to false on follow and supports dedicated PUT/DELETE mute endpoint", async () => {
+  it("defaults muteStudyStartNotification to 0 on follow and supports dedicated PUT/DELETE mute endpoint", async () => {
     const alice = await createUser({ name: "Alice" });
     const bob = await createUser({ name: "Bob" });
 
@@ -41,6 +41,7 @@ describe("Follow Mute Notifications API", () => {
     const { status: followStatus, body: followBody } = await readResponse(followRes);
     expect(followStatus).toBe(200);
     expect(followBody.isFollowing).toBe(true);
+    expect(followBody.muteStudyStartNotification).toBe(0);
     expect(followBody.isMuted).toBe(false);
 
     // 2. Check Bob's view of Alice via GET /api/v1/users/:id
@@ -51,6 +52,7 @@ describe("Follow Mute Notifications API", () => {
     const { status: aliceStatus, body: aliceBody } = await readResponse(aliceFromBob);
     expect(aliceStatus).toBe(200);
     expect(aliceBody.isFollowing).toBe(true);
+    expect(aliceBody.muteStudyStartNotification).toBe(0);
     expect(aliceBody.isMuted).toBe(false);
 
     // 3. Bob mutes study start notifications from Alice via PUT /api/v1/follow/:id/mute
@@ -60,6 +62,7 @@ describe("Follow Mute Notifications API", () => {
     );
     const { status: muteStatus, body: muteBody } = await readResponse(muteRes);
     expect(muteStatus).toBe(200);
+    expect(muteBody.muteStudyStartNotification).toBe(1);
     expect(muteBody.isMuted).toBe(true);
 
     // 4. Check DB row
@@ -68,7 +71,7 @@ describe("Follow Mute Notifications API", () => {
         followerId_followingId: { followerId: bob.id, followingId: alice.id },
       },
     });
-    expect(followRow?.muteStudyStartNotification).toBe(true);
+    expect(followRow?.muteStudyStartNotification).toBe(1);
 
     // 5. Check Bob's view of Alice again
     const aliceFromBobAfterMute = await userGET(
@@ -76,15 +79,17 @@ describe("Follow Mute Notifications API", () => {
       routeCtx({ id: alice.id }),
     );
     const { body: aliceBodyAfterMute } = await readResponse(aliceFromBobAfterMute);
+    expect(aliceBodyAfterMute.muteStudyStartNotification).toBe(1);
     expect(aliceBodyAfterMute.isMuted).toBe(true);
 
-    // 6. Bob's following list shows isMuted: true
+    // 6. Bob's following list shows muteStudyStartNotification: 1
     const bobFollowingRes = await followingGET(
       apiRequest("GET", { token: bob.token }),
       routeCtx({ id: "me" }),
     );
     const { body: bobFollowingBody } = await readResponse(bobFollowingRes);
     const aliceInFollowing = bobFollowingBody.users.find((u: { id: string }) => u.id === alice.id);
+    expect(aliceInFollowing?.muteStudyStartNotification).toBe(1);
     expect(aliceInFollowing?.isMuted).toBe(true);
 
     // 7. Unmute via DELETE /api/v1/follow/:id/mute
@@ -94,15 +99,16 @@ describe("Follow Mute Notifications API", () => {
     );
     const { status: unmuteStatus, body: unmuteBody } = await readResponse(unmuteRes);
     expect(unmuteStatus).toBe(200);
+    expect(unmuteBody.muteStudyStartNotification).toBe(0);
     expect(unmuteBody.isMuted).toBe(false);
 
-    // 8. DB row is now false
+    // 8. DB row is now 0
     const followRowAfterUnmute = await prisma.follow.findUnique({
       where: {
         followerId_followingId: { followerId: bob.id, followingId: alice.id },
       },
     });
-    expect(followRowAfterUnmute?.muteStudyStartNotification).toBe(false);
+    expect(followRowAfterUnmute?.muteStudyStartNotification).toBe(0);
   });
 
   it("ensures privacy: third party cannot see another user's mute settings", async () => {
@@ -125,6 +131,7 @@ describe("Follow Mute Notifications API", () => {
     );
     const { body: followersBody } = await readResponse(charlieViewFollowers);
     const bobInList = followersBody.users.find((u: { id: string }) => u.id === bob.id);
+    expect(bobInList?.muteStudyStartNotification).toBe(0);
     expect(bobInList?.isMuted).toBe(false);
 
     // Alice views her own followers list:
@@ -135,6 +142,7 @@ describe("Follow Mute Notifications API", () => {
     );
     const { body: aliceFollowersBody } = await readResponse(aliceViewFollowers);
     const bobInAliceList = aliceFollowersBody.users.find((u: { id: string }) => u.id === bob.id);
+    expect(bobInAliceList?.muteStudyStartNotification).toBe(0);
     expect(bobInAliceList?.isMuted).toBe(false);
   });
 
@@ -167,11 +175,11 @@ describe("Follow Mute Notifications API", () => {
       },
     });
 
-    // We can verify that sendToFollowers queries only unmuted followers
+    // We can verify that sendToFollowers queries only unmuted followers (muteStudyStartNotification: 0)
     const unmutedFollowers = await prisma.follow.findMany({
       where: {
         followingId: alice.id,
-        muteStudyStartNotification: false,
+        muteStudyStartNotification: 0,
       },
       select: { followerId: true },
     });

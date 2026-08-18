@@ -219,7 +219,7 @@ export async function sendToFollowers(
   const followers = await prisma.follow.findMany({
     where: {
       followingId: studyingUserId,
-      muteStudyStartNotification: false,
+      muteStudyStartNotification: 0,
     },
     select: { followerId: true },
   });

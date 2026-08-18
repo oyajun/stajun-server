@@ -35,10 +35,10 @@ export async function PUT(
 
   await prisma.follow.update({
     where: { id: existingFollow.id },
-    data: { muteStudyStartNotification: true },
+    data: { muteStudyStartNotification: 1 },
   });
 
-  return Response.json({ isMuted: true });
+  return Response.json({ muteStudyStartNotification: 1, isMuted: true });
 }
 
 /** DELETE /api/v1/follow/:id/mute — :id の勉強開始通知のミュートを解除（OFF） */
@@ -71,8 +71,8 @@ export async function DELETE(
 
   await prisma.follow.update({
     where: { id: existingFollow.id },
-    data: { muteStudyStartNotification: false },
+    data: { muteStudyStartNotification: 0 },
   });
 
-  return Response.json({ isMuted: false });
+  return Response.json({ muteStudyStartNotification: 0, isMuted: false });
 }

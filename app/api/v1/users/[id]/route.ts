@@ -49,13 +49,15 @@ export async function GET(
     }),
   ]);
 
+  const muteMode = follow ? follow.muteStudyStartNotification : 0;
   return Response.json({
     id: target.id,
     name: target.name || "名無し",
     iconEmoji: target.iconEmoji || "👤",
     iconBackgroundColor: target.iconBackgroundColor || "#CCCCCC",
     isFollowing: follow !== null,
-    isMuted: follow ? follow.muteStudyStartNotification : false,
+    muteStudyStartNotification: muteMode,
+    isMuted: muteMode === 1,
     isStudying: activeSession !== null,
     studyingSince: activeSession?.startedAt ?? null,
   });

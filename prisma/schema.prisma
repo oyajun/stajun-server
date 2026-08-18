@@ -89,7 +89,7 @@ model Follow {
   id                         String   @id @default(cuid())
   followerId                 String
   followingId                String
-  muteStudyStartNotification Boolean  @default(false)
+  muteStudyStartNotification Int      @default(0)
   createdAt                  DateTime @default(now())
 
   follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
