@@ -2,6 +2,10 @@
 
 문의사항, 버그 신고, 의견 및 요청 사항은 아래 창구를 통해 접수하고 있습니다.
 
+## 문의 및 피드백 폼
+기능 제안이나 오류 제보를 웹 폼을 통해 간편하게 접수하실 수 있습니다.
+[https://forms.cloud.microsoft/r/u0XVnrtyDd](https://forms.cloud.microsoft/r/u0XVnrtyDd)
+
 ## 이메일 문의
 [junjun@oyajun.com](mailto:junjun@oyajun.com)
 

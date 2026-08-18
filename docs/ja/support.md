@@ -2,6 +2,10 @@
 
 お問い合わせやバグ報告、ご意見・ご要望は以下の窓口より承っております。
 
+## お問い合わせ・ご意見フォーム
+機能のご要望や不具合報告など、Webフォームからもお送りいただけます。
+[https://forms.cloud.microsoft/r/ANjheNkb0B](https://forms.cloud.microsoft/r/ANjheNkb0B)
+
 ## メールでのお問い合わせ
 [junjun@oyajun.com](mailto:junjun@oyajun.com)
 

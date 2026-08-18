@@ -2,6 +2,10 @@
 
 For inquiries, bug reports, feedback, and feature requests, please contact us through the following channels:
 
+## Feedback & Inquiry Form
+Submit suggestions, questions, or bug reports directly through our web form:
+[https://forms.cloud.microsoft/r/u0XVnrtyDd](https://forms.cloud.microsoft/r/u0XVnrtyDd)
+
 ## Email Support
 [junjun@oyajun.com](mailto:junjun@oyajun.com)
 

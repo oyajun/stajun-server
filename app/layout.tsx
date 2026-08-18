@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "JunJun - 勉強SNS",
-  description: "今、何を勉強しているかを共有するSNS",
+  metadataBase: new URL(process.env.BETTER_AUTH_URL || "https://junjun.oyajun.com"),
+  title: "JunJun",
+  description: "Study Community JunJun",
 };
 
 export default function RootLayout({
