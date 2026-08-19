@@ -8,7 +8,8 @@ import {
 
 /**
  * GET /api/v1/following/:id — :id がフォロー中のユーザー一覧。
- * 各ユーザーに勉強中フラグ（isStudying/studyingSince）を付け、勉強中を先頭にソートして返す。
+ * 各ユーザーに勉強中フラグ（isStudying/studyingSince）を付け、
+ * 勉強中を先頭（開始が新しい順）、非勉強中は lastActiveAt が最近順（nullは最後）にソートして返す。
  * `:id` は `me` 可で、`following/me` はホーム画面のプレゼンス（ポーリング対象）に使う。
  * プレゼンス用途のため全件返す（ページングなし）。
  */
@@ -52,16 +53,34 @@ export async function GET(
       name: true,
       iconEmoji: true,
       iconBackgroundColor: true,
+      lastActiveAt: true,
     },
   });
+
+  const lastActiveMap = new Map(rows.map((r) => [r.id, r.lastActiveAt]));
 
   const users = await annotateUsers(user.id, rows);
   users.sort((a, b) => {
     // 勉強中を先頭に
     if (a.isStudying !== b.isStudying) return a.isStudying ? -1 : 1;
     // 勉強中同士は開始が新しい順
-    if (a.studyingSince && b.studyingSince) {
-      return b.studyingSince.getTime() - a.studyingSince.getTime();
+    if (a.isStudying && b.isStudying) {
+      if (a.studyingSince && b.studyingSince) {
+        const diff = b.studyingSince.getTime() - a.studyingSince.getTime();
+        if (diff !== 0) return diff;
+      }
+      return (a.name ?? "").localeCompare(b.name ?? "");
+    }
+    // 勉強中でない人同士は lastActiveAt の新しい順（nullは最後）
+    const aLast = lastActiveMap.get(a.id);
+    const bLast = lastActiveMap.get(b.id);
+    if (aLast && bLast) {
+      const diff = bLast.getTime() - aLast.getTime();
+      if (diff !== 0) return diff;
+    } else if (aLast && !bLast) {
+      return -1;
+    } else if (!aLast && bLast) {
+      return 1;
     }
     // それ以外は name 昇順
     return (a.name ?? "").localeCompare(b.name ?? "");
