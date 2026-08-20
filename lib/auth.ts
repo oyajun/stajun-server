@@ -64,6 +64,7 @@ export const auth = betterAuth({
         enabled: true
       },
       storeOTP: "hashed",
+      disableSignUp: true,
     }),
     bearer(),
     dash({
