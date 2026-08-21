@@ -55,6 +55,10 @@ export const auth = betterAuth({
       ipAddressHeaders: ["x-nf-client-connection-ip"],
     }
   },
+  rateLimit: {
+    storage: "database",
+    modelName: "rateLimit", //optional by default "rateLimit" is used
+  },
   plugins: [
     emailOTP({
       async sendVerificationOTP({ email, otp }) {
