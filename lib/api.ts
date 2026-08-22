@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
 export type SessionUser = NonNullable<Session>["user"];
+export type SessionObject = NonNullable<Session>["session"];
 
 /** 統一エラーレスポンス（body: { error: { code, message } }） */
 export function apiError(status: number, code: string, message: string) {
@@ -22,16 +23,16 @@ export function studyingSinceThreshold(now: Date = new Date()) {
 
 /**
  * 認証必須。bearerトークン（Authorization: Bearer <token>）からセッションを解決する。
- * 未認証なら401 Response、認証済みなら { user } を返す。
+ * 未認証なら401 Response、認証済みなら { user, session } を返す。
  */
 export async function requireUser(
   request: Request,
-): Promise<{ user: SessionUser } | Response> {
+): Promise<{ user: SessionUser; session: SessionObject } | Response> {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) {
     return apiError(401, "UNAUTHORIZED", "認証が必要です。");
   }
-  return { user: session.user };
+  return { user: session.user, session: session.session };
 }
 
 /**
@@ -41,7 +42,7 @@ export async function requireUser(
  */
 export async function requireOnboardedUser(
   request: Request,
-): Promise<{ user: SessionUser } | Response> {
+): Promise<{ user: SessionUser; session: SessionObject } | Response> {
   return requireUser(request);
 }
 

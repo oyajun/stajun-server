@@ -37,15 +37,16 @@ model User {
 }
 
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String        @id
+  expiresAt    DateTime
+  token        String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  ipAddress    String?
+  userAgent    String?
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceTokens DeviceToken[]
 
   @@unique([token])
   @@index([userId])
@@ -141,12 +142,15 @@ model StudyPost {
 model DeviceToken {
   id        String   @id @default(cuid())
   userId    String
+  sessionId String?
   token     String   @unique
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([sessionId])
 }
 
 model Notification {
