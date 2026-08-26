@@ -197,6 +197,18 @@ export default async function LandingPage({ params }: PageProps) {
                 {dictionary.hero.altstore.regionNotice}
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
+                <span>{dictionary.hero.altstore.notInstalledPrompt} </span>
+                <a
+                  href="https://altstore.io/#Downloads"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  {dictionary.hero.altstore.officialSiteLinkText}
+                </a>
+                <span> {dictionary.hero.altstore.notInstalledSuffix}</span>
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
                 <span>{dictionary.hero.altstore.sourceUrlLabel}</span>
                 <a
                   href="/altstore/source.json"

@@ -23,6 +23,9 @@ export const ko: Dictionary = {
       button: "AltStore PAL에 추가",
       sourceUrlLabel: "소스: ",
       regionNotice: "AltStore는 일본 및 브라질에서만 이용 가능합니다",
+      notInstalledPrompt: "AltStore PAL을 설치하지 않은 경우",
+      officialSiteLinkText: "공식 사이트 (altstore.io)",
+      notInstalledSuffix: "에서 설치해 주세요",
     },
     activeUsersSample: {
       user1: { name: "민준", subject: "TOEIC 단어 암기", time: "42분 공부 중" },

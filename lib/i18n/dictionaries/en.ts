@@ -23,6 +23,9 @@ export const en: Dictionary = {
       button: "Add to AltStore PAL",
       sourceUrlLabel: "Source: ",
       regionNotice: "AltStore is available only in Japan and Brazil.",
+      notInstalledPrompt: "If you haven't installed AltStore PAL, please install it from the",
+      officialSiteLinkText: "Official Site (altstore.io)",
+      notInstalledSuffix: "",
     },
     activeUsersSample: {
       user1: { name: "Alex", subject: "Spanish Vocab", time: "42 min studying" },

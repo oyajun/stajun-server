@@ -23,6 +23,9 @@ export interface Dictionary {
       button: string;
       sourceUrlLabel: string;
       regionNotice: string;
+      notInstalledPrompt: string;
+      officialSiteLinkText: string;
+      notInstalledSuffix: string;
     };
     activeUsersSample: {
       user1: { name: string; subject: string; time: string };
