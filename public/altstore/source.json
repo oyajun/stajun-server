@@ -1,0 +1,136 @@
+{
+  "name": "JunJun",
+  "subtitle": "Share your study status!",
+  "localizedSubtitles": {
+    "en": "Share your study status!",
+    "ja": "リアルタイムに勉強中かを共有しよう!",
+    "ko": "실시간으로 공부 상태를 공유해보세요!"
+  },
+  "description": "Your icon glows rainbow while you study, letting friends know you’re working hard! \nShare your study time, comments, workouts, walks, chores, music, and more.\n[Features]\n・ Share your studying status with friends\n・ Get a push notification when someone you follow starts studying.\n・ Follow your friends\n・ Post your study time and content\n・ View your study time on graphs",
+  "localizedDescriptions": {
+    "en": "Your icon glows rainbow while you study, letting friends know you’re working hard! \nShare your study time, comments, workouts, walks, chores, music, and more.\n[Features]\n・ Share your studying status with friends\n・ Get a push notification when someone you follow starts studying.\n・ Follow your friends\n・ Post your study time and content\n・ View your study time on graphs",
+    "ja": "勉強時間を計測している間、アイコンが虹色に光って友達にアピール！\n勉強が終わったら勉強時間とコメントを投稿しよう。\n勉強以外にも、散歩、筋トレ、家事、楽器など頑張ってることを、みんなにシェアできるよ。\n【機能】\n・勉強中のステータスを友達と共有\n・フォロー中の人が勉強を始めたら通知\n・友達をフォロー\n・勉強時間と内容を投稿\n・勉強時間をグラフで表示",
+    "ko": "공부 시간을 측정하는 동안 아이콘이 무지개색으로 빛나며 친구들에게 알려보세요! 공부가 끝나면 공부 시간과 댓글을 게시해 보세요. 공부뿐만 아니라 산책, 운동, 집안일, 악기 연주 등 내가 열심히 하고 있는 일도 모두와 공유할 수 있어요.\n[기능]\n・ 공부 중인 상태를 친구들과 공유\n・ 팔로우한 사람이 공부を 시작하면 푸시 알림을 받아보세요\n・ 친구들을 팔로우\n・ 공부 시간과 내용을 기록\n・ 공부 시간을 그래프로 확인"
+  },
+  "iconURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/icon/png/1024/iOS-Default-1024x1024@1x.png",
+  "headerURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ja/ios_ja.png",
+  "website": "https://junjun.oyajun.com",
+  "fediUsername": "junjun",
+  "tintColor": "#3B82F6",
+  "nsfw": false,
+  "featuredApps": [
+    "com.oyajun.junjunapp"
+  ],
+  "apps": [
+    {
+      "name": "JunJun",
+      "bundleIdentifier": "com.oyajun.junjunapp",
+      "marketplaceID": "6798144458",
+      "developerName": "Jun",
+      "subtitle": "Share your study status!",
+      "localizedSubtitles": {
+        "en": "Share your study status!",
+        "ja": "リアルタイムに勉強中かを共有しよう!",
+        "ko": "실시간으로 공부 상태를 공유해보세요!"
+      },
+      "localizedDescription": "Your icon glows rainbow while you study, letting friends know you’re working hard! \nShare your study time, comments, workouts, walks, chores, music, and more.\n[Features]\n・ Share your studying status with friends\n・ Get a push notification when someone you follow starts studying.\n・ Follow your friends\n・ Post your study time and content\n・ View your study time on graphs",
+      "localizedDescriptions": {
+        "en": "Your icon glows rainbow while you study, letting friends know you’re working hard! \nShare your study time, comments, workouts, walks, chores, music, and more.\n[Features]\n・ Share your studying status with friends\n・ Get a push notification when someone you follow starts studying.\n・ Follow your friends\n・ Post your study time and content\n・ View your study time on graphs",
+        "ja": "勉強時間を計測している間、アイコンが虹色に光って友達にアピール！\n勉強が終わったら勉強時間とコメントを投稿しよう。\n勉強以外にも、散歩、筋トレ、家事、楽器など頑張ってることを、みんなにシェアできるよ。\n【機能】\n・勉強中のステータスを友達と共有\n・フォロー中の人が勉強を始めたら通知\n・友達をフォロー\n・勉強時間と内容を投稿\n・勉強時間をグラフで表示",
+        "ko": "공부 시간을 측정하는 동안 아이콘이 무지개색으로 빛나며 친구들에게 알려보세요! 공부가 끝나면 공부 시간과 댓글을 게시해 보세요. 공부뿐만 아니라 산책, 운동, 집안일, 악기 연주 등 내가 열심히 하고 있는 일도 모두와 공유할 수 있어요.\n[기능]\n・ 공부 중인 상태를 친구들과 공유\n・ 팔로우한 사람이 공부를 시작하면 푸시 알림을 받아보세요\n・ 친구들을 팔로우\n・ 공부 시간과 내용을 기록\n・ 공부 시간을 그래프로 확인"
+      },
+      "iconURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/icon/png/1024/iOS-Default-1024x1024@1x.png",
+      "tintColor": "#3B82F6",
+      "category": "social",
+      "screenshots": {
+        "iphone": [
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ja/ja_1%20%E3%83%98%E3%82%9A%E3%83%BC%E3%82%B7%E3%82%99.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ja/ja_2%20%E3%83%98%E3%82%9A%E3%83%BC%E3%82%B7%E3%82%99.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ja/ja_3%20%E3%83%98%E3%82%9A%E3%83%BC%E3%82%B7%E3%82%99.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/en/en_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/en/en_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/en/en_3%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ko/ko_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ko/ko_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ko/ko_3%20%E3%83%9A%E3%83%BC%E3%82%B8.png"
+        ],
+        "ipad": [
+          {
+            "imageURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iPadOS/ja/iPadOS_ja_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+            "width": 2048,
+            "height": 2732
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iPadOS/ja/iPadOS_ja_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+            "width": 2048,
+            "height": 2732
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iPadOS/cliped/screenshot_cliped_ja.png",
+            "width": 2048,
+            "height": 2732
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iPadOS/en/iPadOS_en_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+            "width": 2048,
+            "height": 2732
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iPadOS/en/iPadOS_en_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+            "width": 2048,
+            "height": 2732
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iPadOS/cliped/screenshot_cliped_en.png",
+            "width": 2048,
+            "height": 2732
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iPadOS/ko/iPadOS_ko_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+            "width": 2048,
+            "height": 2732
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iPadOS/ko/iPadOS_ko_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+            "width": 2048,
+            "height": 2732
+          },
+          {
+            "imageURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iPadOS/cliped/screenshot_cliped_ko.png",
+            "width": 2048,
+            "height": 2732
+          }
+        ]
+      },
+      "versions": [
+        {
+          "version": "1.3.1",
+          "buildVersion": "1",
+          "date": "2026-08-24",
+          "localizedDescription": "- Fixed an issue where the app crashed on macOS.\n- Adjusted the intensity of the study glow effect.",
+          "localizedDescriptions": {
+            "en": "- Fixed an issue where the app crashed on macOS.\n- Adjusted the intensity of the study glow effect.",
+            "ja": "・macOSでクラッシュする問題を解消\n・光る色の濃さを調整",
+            "ko": "- macOS에서 앱이 비정상 종료되던 문제를 해결했습니다.\n- 공부 중 아이콘의 발광 색상 농도를 조정했습니다."
+          },
+          "downloadURL": "https://junjun.oyajun.com/altstore/adp/76331eb3-532f-4793-aa6d-83bd57ad8ea5/manifest.json",
+          "size": 3331063,
+          "minOSVersion": "26.0",
+          "assetURLs": {
+            "manifest": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/manifest.json",
+            "signature": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/signature",
+            "76331eb3-532f-4793-aa6d-83bd57ad8ea5": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/76331eb3-532f-4793-aa6d-83bd57ad8ea5.ipa"
+          }
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [
+          "aps-environment",
+          "keychain-access-groups"
+        ],
+        "privacy": {}
+      }
+    }
+  ],
+  "news": []
+}
