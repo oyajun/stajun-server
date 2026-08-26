@@ -13,7 +13,7 @@
     "ko": "공부 시간을 측정하는 동안 아이콘이 무지개색으로 빛나며 친구들에게 알려보세요! 공부가 끝나면 공부 시간과 댓글을 게시해 보세요. 공부뿐만 아니라 산책, 운동, 집안일, 악기 연주 등 내가 열심히 하고 있는 일도 모두와 공유할 수 있어요.\n[기능]\n・ 공부 중인 상태를 친구들과 공유\n・ 팔로우한 사람이 공부を 시작하면 푸시 알림을 받아보세요\n・ 친구들을 팔로우\n・ 공부 시간과 내용을 기록\n・ 공부 시간을 그래프로 확인"
   },
   "iconURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/icon/png/1024/iOS-Default-1024x1024@1x.png",
-  "headerURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ja/ios_ja.png",
+  "headerURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/ja/ios_ja.png",
   "website": "https://junjun.oyajun.com",
   "fediUsername": "junjun",
   "tintColor": "#3B82F6",
@@ -44,15 +44,15 @@
       "category": "social",
       "screenshots": {
         "iphone": [
-          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ja/ja_1%20%E3%83%98%E3%82%9A%E3%83%BC%E3%82%B7%E3%82%99.png",
-          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ja/ja_2%20%E3%83%98%E3%82%9A%E3%83%BC%E3%82%B7%E3%82%99.png",
-          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ja/ja_3%20%E3%83%98%E3%82%9A%E3%83%BC%E3%82%B7%E3%82%99.png",
-          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/en/en_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
-          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/en/en_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
-          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/en/en_3%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
-          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ko/ko_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
-          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ko/ko_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
-          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/iOS/ko/ko_3%20%E3%83%9A%E3%83%BC%E3%82%B8.png"
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/ja/ja_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/ja/ja_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/ja/ja_3%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/en/en_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/en/en_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/en/en_3%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/ko/ko_1%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/ko/ko_2%20%E3%83%9A%E3%83%BC%E3%82%B8.png",
+          "https://raw.githubusercontent.com/oyajun/junjun-asset/main/screenshot/ios/ko/ko_3%20%E3%83%9A%E3%83%BC%E3%82%B8.png"
         ],
         "ipad": [
           {
