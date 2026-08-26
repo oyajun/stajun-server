@@ -18,6 +18,12 @@ export const ko: Dictionary = {
     subtitle: "친구들이 공부하고 있다는 걸 알게 되면 나도 공부하고 싶어지지 않나요?",
     downloadButton: "App Store에서 다운로드",
     platformNote: "iOS / iPadOS / macOS / visionOS 26.0 이상 지원",
+    gdprNote: "EU에서는 GDPR을 지원하지 않아 배포되지 않습니다",
+    altstore: {
+      button: "AltStore PAL에 추가",
+      sourceUrlLabel: "소스: ",
+      regionNotice: "AltStore는 일본 및 브라질에서만 이용 가능합니다",
+    },
     activeUsersSample: {
       user1: { name: "민준", subject: "TOEIC 단어 암기", time: "42분 공부 중" },
       user2: { name: "서연", subject: "정보처리기사 실기", time: "1시간 15분 공부 중" },

@@ -18,6 +18,12 @@ export const en: Dictionary = {
     subtitle: "Seeing your friends studying motivates you to start studying too, right?",
     downloadButton: "Download on App Store",
     platformNote: "Requires iOS / iPadOS / macOS / visionOS 26.0 or later",
+    gdprNote: "Not distributed in the EU as GDPR is not supported.",
+    altstore: {
+      button: "Add to AltStore PAL",
+      sourceUrlLabel: "Source: ",
+      regionNotice: "AltStore is available only in Japan and Brazil.",
+    },
     activeUsersSample: {
       user1: { name: "Alex", subject: "Spanish Vocab", time: "42 min studying" },
       user2: { name: "Emma", subject: "Data Structures & Algos", time: "1h 15m studying" },

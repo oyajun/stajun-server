@@ -18,6 +18,12 @@ export interface Dictionary {
     subtitle: string;
     downloadButton: string;
     platformNote: string;
+    gdprNote: string;
+    altstore: {
+      button: string;
+      sourceUrlLabel: string;
+      regionNotice: string;
+    };
     activeUsersSample: {
       user1: { name: string; subject: string; time: string };
       user2: { name: string; subject: string; time: string };

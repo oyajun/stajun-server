@@ -18,6 +18,12 @@ export const ja: Dictionary = {
     subtitle: "友達が勉強をしていることがわかると勉強する気になりますよね？",
     downloadButton: "App Store で入手",
     platformNote: "iOS / iPadOS / macOS / visionOS 26.0 以上に対応",
+    gdprNote: "EUではGDPRに対応していないため配信していません",
+    altstore: {
+      button: "AltStore PAL に追加",
+      sourceUrlLabel: "ソース: ",
+      regionNotice: "AltStoreは、日本とブラジルでのみ利用可能です",
+    },
     activeUsersSample: {
       user1: { name: "ユウキ", subject: "TOEIC 単語学習", time: "42分 勉強中" },
       user2: { name: "ミサト", subject: "基本情報技術者試験", time: "1時間15分 勉強中" },

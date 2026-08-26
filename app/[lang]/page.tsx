@@ -151,8 +151,14 @@ export default async function LandingPage({ params }: PageProps) {
               {dictionary.hero.subtitle}
             </p>
 
+            {/* Platform Note & GDPR Note */}
+            <div className="flex flex-col items-center gap-1 mb-6 text-xs text-slate-500">
+              <p>{dictionary.hero.platformNote}</p>
+              <p>{dictionary.hero.gdprNote}</p>
+            </div>
+
             {/* Official App Store Download Badge */}
-            <div className="flex items-center justify-center mb-3">
+            <div className="mb-4">
               <a
                 href={APP_STORE_URL}
                 target="_blank"
@@ -165,13 +171,42 @@ export default async function LandingPage({ params }: PageProps) {
                   alt="Download on the App Store"
                   width={160}
                   height={53}
-                  className="h-12 sm:h-13 w-auto shadow-xs rounded-lg"
+                  className="h-12 sm:h-13 w-auto shadow-xs rounded-lg mx-auto"
                   priority
                 />
               </a>
             </div>
 
-            <p className="text-xs text-slate-600 mb-14">{dictionary.hero.platformNote}</p>
+            {/* AltStore PAL Download Badge & Notes (No border) */}
+            <div className="flex flex-col items-center mb-14">
+              <a
+                href="altstore://source?url=https%3A%2F%2Fjunjun.oyajun.com%2Faltstore%2Fsource.json"
+                className="inline-block transition-transform hover:scale-[1.02] active:scale-[0.98] mb-2"
+                aria-label="Download on AltStore PAL"
+              >
+                <Image
+                  src="/assets/altstore-badge.png"
+                  alt="Download on AltStore PAL"
+                  width={166}
+                  height={53}
+                  className="h-12 sm:h-13 w-auto shadow-xs rounded-lg"
+                  priority
+                />
+              </a>
+              <p className="text-xs text-slate-500 mt-1">
+                {dictionary.hero.altstore.regionNotice}
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                <span>{dictionary.hero.altstore.sourceUrlLabel}</span>
+                <a
+                  href="/altstore/source.json"
+                  target="_blank"
+                  className="text-blue-600 hover:underline"
+                >
+                  https://junjun.oyajun.com/altstore/source.json
+                </a>
+              </p>
+            </div>
 
             {/* App Screenshot Hero (Frameless, Clean & Framed only by device silhouette) */}
             <div className="relative max-w-[280px] sm:max-w-[320px] mx-auto">
