@@ -1,33 +1,26 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { defaultLocale, locales } from "@/lib/i18n/get-dictionary";
-import { Locale } from "@/lib/i18n/types";
+'use client';
 
-export default async function RootPage() {
-  const headerList = await headers();
-  const acceptLanguage = headerList.get("accept-language") || "";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-  let detectedLocale: Locale = defaultLocale;
+export default function RootPage() {
+  const router = useRouter();
 
-  // Simple locale detection from Accept-Language header
-  if (acceptLanguage) {
-    const primaryLang = acceptLanguage.split(",")[0].toLowerCase().trim();
-    if (primaryLang.startsWith("ko")) {
-      detectedLocale = "ko";
-    } else if (primaryLang.startsWith("en")) {
-      detectedLocale = "en";
-    } else if (primaryLang.startsWith("ja")) {
-      detectedLocale = "ja";
+  useEffect(() => {
+    const lang = (navigator.language || '').toLowerCase();
+    if (lang.startsWith('ja')) {
+      router.replace('/ja');
+    } else if (lang.startsWith('ko')) {
+      router.replace('/ko');
     } else {
-      // Fallback check if any supported language exists in header
-      for (const loc of locales) {
-        if (acceptLanguage.toLowerCase().includes(loc)) {
-          detectedLocale = loc;
-          break;
-        }
-      }
+      router.replace('/en');
     }
-  }
+  }, [router]);
 
-  redirect(`/${detectedLocale}`);
+  return (
+    <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'sans-serif' }}>
+      <p>Redirecting to <a href="/en">JunJun</a>...</p>
+    </div>
+  );
 }
+

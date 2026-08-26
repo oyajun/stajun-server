@@ -19,13 +19,18 @@ export function getRedisClient(): Redis | null {
  */
 export function normalizeApiPath(pathname: string): string {
   const cleanPath = pathname.split('?')[0].replace(/\/$/, '') || '/';
+
+  // better-auth の認証エンドポイント (/api/auth/...) は動的 ID を含まないため、そのままのパスで集計する
+  if (cleanPath.startsWith('/api/auth')) {
+    return cleanPath;
+  }
+
   const segments = cleanPath.split('/');
 
   const knownWords = new Set([
     '',
     'api',
     'v1',
-    'auth',
     'posts',
     'notifications',
     'unread-count',
@@ -39,12 +44,14 @@ export function normalizeApiPath(pathname: string): string {
     'following',
     'users',
     'stats',
+    'series',
+    'me',
     'profile',
     'study-sessions',
     'start',
     'stop',
-    'active',
     'settings',
+    'push-notifications',
     'account',
     'apns-token',
     'search',

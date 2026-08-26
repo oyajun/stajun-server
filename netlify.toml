@@ -4,3 +4,29 @@
 [build.environment]
   SECRETS_SCAN_ENABLED = "false"
   SECRETS_SCAN_OMIT_PATHS = ".open-next/, .netlify/, .next/"
+
+# Netlify CDN での言語自動リダイレクト（関数消費ゼロ）
+[[redirects]]
+  from = "/"
+  to = "/ja"
+  status = 302
+  conditions = { Language = ["ja"] }
+
+[[redirects]]
+  from = "/"
+  to = "/ko"
+  status = 302
+  conditions = { Language = ["ko"] }
+
+[[redirects]]
+  from = "/"
+  to = "/en"
+  status = 302
+  conditions = { Language = ["en"] }
+
+# デフォルトは英語（/en）
+[[redirects]]
+  from = "/"
+  to = "/en"
+  status = 302
+

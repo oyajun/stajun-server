@@ -2,6 +2,12 @@ import fs from 'fs/promises';
 import path from 'path';
 import ReactMarkdown from 'react-markdown';
 
+import { locales } from '@/lib/i18n/get-dictionary';
+
+export async function generateStaticParams() {
+  return locales.map((lang) => ({ lang }));
+}
+
 export default async function SupportPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   
