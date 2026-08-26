@@ -27,6 +27,13 @@ export const ko: Dictionary = {
       officialSiteLinkText: "공식 사이트 (altstore.io)",
       notInstalledSuffix: "에서 설치해 주세요",
     },
+    onside: {
+      button: "Onside에서 다운로드",
+      regionNotice: "Onside는 일본에서만 이용 가능합니다",
+      notInstalledPrompt: "Onside를 설치하지 않은 경우",
+      officialSiteLinkText: "공식 사이트 (onside.io)",
+      notInstalledSuffix: "에서 설치해 주세요",
+    },
     activeUsersSample: {
       user1: { name: "민준", subject: "TOEIC 단어 암기", time: "42분 공부 중" },
       user2: { name: "서연", subject: "정보처리기사 실기", time: "1시간 15분 공부 중" },

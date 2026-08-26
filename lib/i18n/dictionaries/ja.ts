@@ -27,6 +27,13 @@ export const ja: Dictionary = {
       officialSiteLinkText: "公式サイト (altstore.io)",
       notInstalledSuffix: "からインストールしてください",
     },
+    onside: {
+      button: "Onside でダウンロード",
+      regionNotice: "Onsideは、日本でのみ利用可能です",
+      notInstalledPrompt: "Onside をインストールしていない場合は",
+      officialSiteLinkText: "公式サイト (onside.io)",
+      notInstalledSuffix: "からインストールしてください",
+    },
     activeUsersSample: {
       user1: { name: "ユウキ", subject: "TOEIC 単語学習", time: "42分 勉強中" },
       user2: { name: "ミサト", subject: "基本情報技術者試験", time: "1時間15分 勉強中" },

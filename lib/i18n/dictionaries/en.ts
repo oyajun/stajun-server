@@ -27,6 +27,13 @@ export const en: Dictionary = {
       officialSiteLinkText: "Official Site (altstore.io)",
       notInstalledSuffix: "",
     },
+    onside: {
+      button: "Download on Onside",
+      regionNotice: "Onside is available only in Japan.",
+      notInstalledPrompt: "If you haven't installed Onside, please install it from the",
+      officialSiteLinkText: "Official Site (onside.io)",
+      notInstalledSuffix: "",
+    },
     activeUsersSample: {
       user1: { name: "Alex", subject: "Spanish Vocab", time: "42 min studying" },
       user2: { name: "Emma", subject: "Data Structures & Algos", time: "1h 15m studying" },

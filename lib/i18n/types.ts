@@ -27,6 +27,13 @@ export interface Dictionary {
       officialSiteLinkText: string;
       notInstalledSuffix: string;
     };
+    onside: {
+      button: string;
+      regionNotice: string;
+      notInstalledPrompt: string;
+      officialSiteLinkText: string;
+      notInstalledSuffix: string;
+    };
     activeUsersSample: {
       user1: { name: string; subject: string; time: string };
       user2: { name: string; subject: string; time: string };

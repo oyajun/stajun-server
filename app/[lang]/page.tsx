@@ -5,6 +5,8 @@ import { getDictionary, locales } from "@/lib/i18n/get-dictionary";
 import { Locale } from "@/lib/i18n/types";
 
 const APP_STORE_URL = "https://apps.apple.com/app/junjun-study-community/id6798144458";
+const ONSIDE_URL = "https://onside.io/app/6798144458";
+const ONSIDE_OFFICIAL_URL = "https://onside.io";
 
 interface PageProps {
   params: Promise<{
@@ -178,7 +180,7 @@ export default async function LandingPage({ params }: PageProps) {
             </div>
 
             {/* AltStore PAL Download Badge & Notes (No border) */}
-            <div className="flex flex-col items-center mb-14">
+            <div className="flex flex-col items-center mb-6">
               <a
                 href="altstore://source?url=https%3A%2F%2Fjunjun.oyajun.com%2Faltstore%2Fsource.json"
                 className="inline-block transition-transform hover:scale-[1.02] active:scale-[0.98] mb-2"
@@ -217,6 +219,41 @@ export default async function LandingPage({ params }: PageProps) {
                 >
                   https://junjun.oyajun.com/altstore/source.json
                 </a>
+              </p>
+            </div>
+
+            {/* Onside Download Badge & Notes (No border) */}
+            <div className="flex flex-col items-center mb-14">
+              <a
+                href={ONSIDE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block transition-transform hover:scale-[1.02] active:scale-[0.98] mb-2"
+                aria-label="Download on Onside"
+              >
+                <Image
+                  src="/assets/onside-badge.png"
+                  alt="Download on Onside"
+                  width={147}
+                  height={53}
+                  className="h-12 sm:h-13 w-auto shadow-xs rounded-lg"
+                  priority
+                />
+              </a>
+              <p className="text-xs text-slate-500 mt-1">
+                {dictionary.hero.onside.regionNotice}
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                <span>{dictionary.hero.onside.notInstalledPrompt} </span>
+                <a
+                  href={ONSIDE_OFFICIAL_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  {dictionary.hero.onside.officialSiteLinkText}
+                </a>
+                <span> {dictionary.hero.onside.notInstalledSuffix}</span>
               </p>
             </div>
 
