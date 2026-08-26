@@ -114,12 +114,29 @@
             "ko": "- macOS에서 앱이 비정상 종료되던 문제를 해결했습니다.\n- 공부 중 아이콘의 발광 색상 농도를 조정했습니다."
           },
           "downloadURL": "https://junjun.oyajun.com/altstore/adp/76331eb3-532f-4793-aa6d-83bd57ad8ea5/manifest.json",
-          "size": 3331063,
+          "size": 3330601,
           "minOSVersion": "26.0",
           "assetURLs": {
+            "02b261db-9a02-3274-8671-47774c0b4632": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/02b261db-9a02-3274-8671-47774c0b4632.ipa",
+            "10e0c73b-7daa-3490-a82d-857708d47ce4": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/10e0c73b-7daa-3490-a82d-857708d47ce4.ipa",
+            "2ee87547-fa99-324f-a3c9-f851e516a5da": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/2ee87547-fa99-324f-a3c9-f851e516a5da.ipa",
+            "404b2b49-eaba-31ed-b7c6-ba4625cdd161": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/404b2b49-eaba-31ed-b7c6-ba4625cdd161.ipa",
+            "54441b6d-84c0-3f97-a09f-0b11e2f95d21": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/54441b6d-84c0-3f97-a09f-0b11e2f95d21.ipa",
+            "5671241d-880c-3884-bc00-6fed3d1d366f": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/5671241d-880c-3884-bc00-6fed3d1d366f.ipa",
+            "567e5394-f492-38ae-ac7f-9d47d9e540de": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/567e5394-f492-38ae-ac7f-9d47d9e540de.ipa",
+            "67138c83-223b-3d26-94c3-f103561ad32e": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/67138c83-223b-3d26-94c3-f103561ad32e.ipa",
+            "8247f0b1-ee64-325e-9ae8-8abd6ec54d17": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/8247f0b1-ee64-325e-9ae8-8abd6ec54d17.ipa",
+            "97eb0e0c-2c70-337d-abec-e8a709a4de1c": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/97eb0e0c-2c70-337d-abec-e8a709a4de1c.ipa",
+            "ae809e04-0525-3a09-8056-148a40c1c6c5": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/ae809e04-0525-3a09-8056-148a40c1c6c5.ipa",
+            "c40e90f6-a5a8-3eb2-850e-2717a30fa328": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/c40e90f6-a5a8-3eb2-850e-2717a30fa328.ipa",
+            "d77ad459-40ff-3349-965a-2c0da4ad5216": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/d77ad459-40ff-3349-965a-2c0da4ad5216.ipa",
+            "e2b60a38-66c6-36a8-806f-cc2fe2ebe01e": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/e2b60a38-66c6-36a8-806f-cc2fe2ebe01e.ipa",
+            "eb2ec82b-7159-3e58-8c2c-ec59544aae84": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/eb2ec82b-7159-3e58-8c2c-ec59544aae84.ipa",
             "manifest": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/manifest.json",
             "signature": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/signature",
-            "76331eb3-532f-4793-aa6d-83bd57ad8ea5": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/76331eb3-532f-4793-aa6d-83bd57ad8ea5.ipa"
+            "320729e5-e4ae-3b47-b307-7ea61411bb13": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/320729e5-e4ae-3b47-b307-7ea61411bb13.ipa",
+            "642b17b0-fb5a-38a4-8d79-6886a1b96294": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/642b17b0-fb5a-38a4-8d79-6886a1b96294.ipa",
+            "e58ca1d2-3abb-3e80-a1d6-2148183ff347": "https://github.com/oyajun/stajun-ios/releases/download/v1.3.1/e58ca1d2-3abb-3e80-a1d6-2148183ff347.ipa"
           }
         }
       ],
