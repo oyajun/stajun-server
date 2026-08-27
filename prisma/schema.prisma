@@ -31,6 +31,7 @@ model User {
   notificationsReceived   Notification[]           @relation("NotificationsReceived")
   notificationsActed      Notification[]           @relation("NotificationsActed")
   pushNotificationSetting PushNotificationSetting?
+  postLikes               PostLike[]
 
   @@unique([email])
   @@map("user")
@@ -135,8 +136,22 @@ model StudyPost {
 
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   notifications Notification[]
+  likes         PostLike[]
 
   @@index([userId, createdAt])
+}
+
+model PostLike {
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post StudyPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@index([userId])
 }
 
 model DeviceToken {

@@ -113,6 +113,9 @@ export async function GET(request: Request) {
       minutes: true,
       comment: true,
       createdAt: true,
+      _count: {
+        select: { likes: true },
+      },
     },
   });
 
@@ -126,6 +129,19 @@ export async function GET(request: Request) {
     : [];
   const authorById = new Map(authors.map((a) => [a.id, a]));
 
+  // 現在のユーザーのいいね状態を一括解決
+  const postIds = posts.map((p) => p.id);
+  const myLikes = postIds.length
+    ? await prisma.postLike.findMany({
+      where: {
+        userId: user.id,
+        postId: { in: postIds },
+      },
+      select: { postId: true },
+    })
+    : [];
+  const likedPostIds = new Set(myLikes.map((l) => l.postId));
+
   const result = posts.map((p) => {
     const a = authorById.get(p.userId);
     return {
@@ -134,6 +150,8 @@ export async function GET(request: Request) {
       minutes: p.minutes,
       comment: p.comment ?? null,
       createdAt: p.createdAt,
+      likeCount: p._count.likes,
+      isLiked: likedPostIds.has(p.id),
       user: a
         ? {
           id: a.id,
