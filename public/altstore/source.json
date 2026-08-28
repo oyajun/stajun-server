@@ -104,6 +104,45 @@
       },
       "versions": [
         {
+          "version": "1.4.0",
+          "buildVersion": "1",
+          "date": "2026-08-27",
+          "localizedDescription": "- Added like feature for posts.",
+          "localizedDescriptions": {
+            "en": "- Added like feature for posts.",
+            "ja": "・いいね機能を追加",
+            "ko": "- 게시물 좋아요 기능 추가"
+          },
+          "downloadURL": "https://junjun.oyajun.com/altstore/adp/64c6383c-b3db-44a9-b7e7-285881598c63/manifest.json",
+          "size": 3356985,
+          "minOSVersion": "26.0",
+          "assetURLs": {
+            "042f2f88-6465-327b-8719-53d30d2246f1": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/042f2f88-6465-327b-8719-53d30d2246f1.ipa",
+            "2197fbf7-e860-3e9b-903d-885f7efae4a2": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/2197fbf7-e860-3e9b-903d-885f7efae4a2.ipa",
+            "2c43d693-a7be-365c-aa7c-c685ca9aace1": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/2c43d693-a7be-365c-aa7c-c685ca9aace1.ipa",
+            "69bfa957-0631-30fe-b38c-8b08ae1f3fce": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/69bfa957-0631-30fe-b38c-8b08ae1f3fce.ipa",
+            "7186046b-b539-3cec-a05f-118c30ba2ad9": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/7186046b-b539-3cec-a05f-118c30ba2ad9.ipa",
+            "7cc1062f-ca32-37af-8c40-825b5b220c4d": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/7cc1062f-ca32-37af-8c40-825b5b220c4d.ipa",
+            "7dda580f-acda-37f6-9b22-941422645234": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/7dda580f-acda-37f6-9b22-941422645234.ipa",
+            "835b1610-fea4-386c-9096-e19d8c16c3d2": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/835b1610-fea4-386c-9096-e19d8c16c3d2.ipa",
+            "ad6176fa-8a7b-3d31-b04b-3e044eafc6fc": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/ad6176fa-8a7b-3d31-b04b-3e044eafc6fc.ipa",
+            "b0dc825c-633e-3bdf-86a9-6cbe7c2f8efc": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/b0dc825c-633e-3bdf-86a9-6cbe7c2f8efc.ipa",
+            "b37c56db-1304-3cef-95cb-144018b892c1": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/b37c56db-1304-3cef-95cb-144018b892c1.ipa",
+            "bc91e54d-6a68-36c0-bc88-4888f2c84044": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/bc91e54d-6a68-36c0-bc88-4888f2c84044.ipa",
+            "c414a2c7-4d32-3966-9edc-72d7cd9c6389": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/c414a2c7-4d32-3966-9edc-72d7cd9c6389.ipa",
+            "cf065f3e-cfa2-3dcc-9088-0065a19c7e5e": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/cf065f3e-cfa2-3dcc-9088-0065a19c7e5e.ipa",
+            "d5d187cf-e1c4-30ee-8e43-71752d0c7b8e": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/d5d187cf-e1c4-30ee-8e43-71752d0c7b8e.ipa",
+            "d666a35d-5a12-3f56-9da8-03dea2e57f89": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/d666a35d-5a12-3f56-9da8-03dea2e57f89.ipa",
+            "e21cf765-e07b-32e9-a78f-c58b06048e3e": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/e21cf765-e07b-32e9-a78f-c58b06048e3e.ipa",
+            "f36e668b-6487-3681-b811-5b22b8082dc1": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/f36e668b-6487-3681-b811-5b22b8082dc1.ipa",
+            "manifest": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/manifest.json",
+            "signature": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/signature",
+            "6038e2d7-984d-311a-9b3b-f1baf1194fa5": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/6038e2d7-984d-311a-9b3b-f1baf1194fa5.ipa",
+            "f44ea759-d170-3234-b91a-dfb4615ca911": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/f44ea759-d170-3234-b91a-dfb4615ca911.ipa",
+            "f69f3696-6618-3cdc-b5c3-eea2e486515e": "https://github.com/oyajun/stajun-ios/releases/download/v1.4.0/f69f3696-6618-3cdc-b5c3-eea2e486515e.ipa"
+          }
+        },
+        {
           "version": "1.3.1",
           "buildVersion": "1",
           "date": "2026-08-24",
