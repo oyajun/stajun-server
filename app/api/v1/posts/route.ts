@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import {
   apiError,
+  isUserPro,
   isValidComment,
   isValidMinutes,
   parseIntParam,
@@ -19,6 +20,8 @@ const AUTHOR_SELECT = {
   iconEmoji: true,
   iconBackgroundColor: true,
   isAnonymous: true,
+  isPro: true,
+  proExpiresAt: true,
 } satisfies Prisma.UserSelect;
 
 /**
@@ -159,6 +162,7 @@ export async function GET(request: Request) {
           iconEmoji: a.iconEmoji || "👤",
           iconBackgroundColor: a.iconBackgroundColor || "#CCCCCC",
           isAnonymous: a.isAnonymous ?? false,
+          isPro: isUserPro(a),
         }
         : null,
     };

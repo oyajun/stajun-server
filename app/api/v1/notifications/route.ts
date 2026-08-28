@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import {
+  isUserPro,
   parseIntParam,
   requireOnboardedUser,
 } from "@/lib/api";
@@ -14,6 +15,8 @@ const ACTOR_SELECT = {
   iconEmoji: true,
   iconBackgroundColor: true,
   isAnonymous: true,
+  isPro: true,
+  proExpiresAt: true,
 } satisfies Prisma.UserSelect;
 
 /**
@@ -96,15 +99,27 @@ export async function GET(request: Request) {
     : [];
   const actorMap = new Map(actors.map((a) => [a.id, a]));
 
-  const formattedNotifications = items.map((n) => ({
-    id: n.id,
-    type: n.type,
-    actor: n.actorId ? actorMap.get(n.actorId) ?? null : null,
-    postId: n.postId,
-    extra: n.extra,
-    isRead: n.isRead,
-    createdAt: n.createdAt.toISOString(),
-  }));
+  const formattedNotifications = items.map((n) => {
+    const actor = n.actorId ? actorMap.get(n.actorId) ?? null : null;
+    return {
+      id: n.id,
+      type: n.type,
+      actor: actor
+        ? {
+            id: actor.id,
+            name: actor.name,
+            iconEmoji: actor.iconEmoji,
+            iconBackgroundColor: actor.iconBackgroundColor,
+            isAnonymous: actor.isAnonymous,
+            isPro: isUserPro(actor),
+          }
+        : null,
+      postId: n.postId,
+      extra: n.extra,
+      isRead: n.isRead,
+      createdAt: n.createdAt.toISOString(),
+    };
+  });
 
   return Response.json({
     notifications: formattedNotifications,

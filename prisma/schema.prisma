@@ -18,6 +18,8 @@ model User {
   iconEmoji               String?
   iconBackgroundColor     String?
   isAnonymous             Boolean?
+  isPro                   Boolean                  @default(false)
+  proExpiresAt            DateTime?
   lastActiveAt            DateTime?
   sessions                Session[]
   accounts                Account[]

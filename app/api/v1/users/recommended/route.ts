@@ -1,6 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
-import { requireOnboardedUser, studyingSinceThreshold } from "@/lib/api";
+import { isUserPro, requireOnboardedUser, studyingSinceThreshold } from "@/lib/api";
 
 const RECOMMENDED_LIMIT = 10;
 
@@ -82,6 +82,8 @@ export async function GET(request: Request) {
           name: true,
           iconEmoji: true,
           iconBackgroundColor: true,
+          isPro: true,
+          proExpiresAt: true,
         },
       },
     },
@@ -92,6 +94,7 @@ export async function GET(request: Request) {
     name: string;
     iconEmoji: string | null;
     iconBackgroundColor: string | null;
+    isPro: boolean;
     isStudying: boolean;
     studyingSince: Date | null;
   }[] = activeSessions.map((s) => ({
@@ -99,6 +102,7 @@ export async function GET(request: Request) {
     name: s.user.name ?? "名無し",
     iconEmoji: s.user.iconEmoji ?? null,
     iconBackgroundColor: s.user.iconBackgroundColor ?? null,
+    isPro: isUserPro(s.user),
     isStudying: true,
     studyingSince: s.startedAt,
   }));
@@ -130,6 +134,8 @@ export async function GET(request: Request) {
             name: true,
             iconEmoji: true,
             iconBackgroundColor: true,
+            isPro: true,
+            proExpiresAt: true,
           },
         },
       },
@@ -144,6 +150,7 @@ export async function GET(request: Request) {
           name: post.user.name ?? "名無し",
           iconEmoji: post.user.iconEmoji ?? null,
           iconBackgroundColor: post.user.iconBackgroundColor ?? null,
+          isPro: isUserPro(post.user),
           isStudying: false,
           studyingSince: null,
         });
@@ -165,6 +172,8 @@ export async function GET(request: Request) {
           name: true,
           iconEmoji: true,
           iconBackgroundColor: true,
+          isPro: true,
+          proExpiresAt: true,
         },
       });
 
@@ -175,6 +184,7 @@ export async function GET(request: Request) {
           name: u.name ?? "名無し",
           iconEmoji: u.iconEmoji ?? null,
           iconBackgroundColor: u.iconBackgroundColor ?? null,
+          isPro: isUserPro(u),
           isStudying: false,
           studyingSince: null,
         });
@@ -188,6 +198,7 @@ export async function GET(request: Request) {
       name: u.name,
       iconEmoji: u.iconEmoji,
       iconBackgroundColor: u.iconBackgroundColor,
+      isPro: u.isPro,
       isFollowing: false,
       isStudying: u.isStudying,
       studyingSince: u.studyingSince ? u.studyingSince.toISOString() : null,

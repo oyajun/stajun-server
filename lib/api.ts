@@ -302,7 +302,19 @@ export type UserRow = {
   name: string | null;
   iconEmoji: string | null;
   iconBackgroundColor: string | null;
+  isPro?: boolean | null;
+  proExpiresAt?: Date | null;
 };
+
+/** ユーザーが Pro（有効期限内）であるかを判定 */
+export function isUserPro(user: {
+  isPro?: boolean | null;
+  proExpiresAt?: Date | null;
+}): boolean {
+  if (user.isPro) return true;
+  if (user.proExpiresAt && new Date(user.proExpiresAt) > new Date()) return true;
+  return false;
+}
 
 /**
  * ユーザー行に、閲覧者から見たフォロー状態と現在の学習状態を付与する。
@@ -337,6 +349,7 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
       name: r.name || "名無し",
       iconEmoji: r.iconEmoji || "👤",
       iconBackgroundColor: r.iconBackgroundColor || "#CCCCCC",
+      isPro: isUserPro(r),
       isFollowing,
       muteStudyStartNotification: muteMode,
       isMuted: muteMode === 1,
@@ -429,6 +442,8 @@ export async function getFollowingUsersWithPresence(
       name: true,
       iconEmoji: true,
       iconBackgroundColor: true,
+      isPro: true,
+      proExpiresAt: true,
       lastActiveAt: true,
     },
   });

@@ -70,6 +70,8 @@ export async function GET(
           name: true,
           iconEmoji: true,
           iconBackgroundColor: true,
+          isPro: true,
+          proExpiresAt: true,
         },
       })
     : [];

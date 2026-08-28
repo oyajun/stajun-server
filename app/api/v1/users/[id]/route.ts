@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import {
   apiError,
+  isUserPro,
   requireOnboardedUser,
   resolveUserIdParam,
   studyingSinceThreshold,
@@ -25,6 +26,8 @@ export async function GET(
       name: true,
       iconEmoji: true,
       iconBackgroundColor: true,
+      isPro: true,
+      proExpiresAt: true,
     },
   });
 
@@ -55,6 +58,7 @@ export async function GET(
     name: target.name || "名無し",
     iconEmoji: target.iconEmoji || "👤",
     iconBackgroundColor: target.iconBackgroundColor || "#CCCCCC",
+    isPro: isUserPro(target),
     isFollowing: follow !== null,
     muteStudyStartNotification: muteMode,
     isMuted: muteMode === 1,

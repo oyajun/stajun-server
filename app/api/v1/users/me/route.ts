@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
   apiError,
+  isUserPro,
   isValidIconBackgroundColor,
   isValidIconEmoji,
   isValidName,
@@ -18,11 +19,17 @@ export async function GET(request: Request) {
   if (authed instanceof Response) return authed;
   const { user } = authed;
 
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { isPro: true, proExpiresAt: true },
+  });
+
   return Response.json({
     id: user.id,
     name: user.name || "名無し",
     iconEmoji: user.iconEmoji || "👤",
     iconBackgroundColor: user.iconBackgroundColor || "#CCCCCC",
+    isPro: dbUser ? isUserPro(dbUser) : false,
     isAnonymous: user.isAnonymous ?? false,
     email: user.isAnonymous ? null : (user.email ?? null),
   });
@@ -88,10 +95,18 @@ export async function PATCH(request: Request) {
       name: true,
       iconEmoji: true,
       iconBackgroundColor: true,
+      isPro: true,
+      proExpiresAt: true,
     },
   });
 
-  return Response.json(updated);
+  return Response.json({
+    id: updated.id,
+    name: updated.name,
+    iconEmoji: updated.iconEmoji,
+    iconBackgroundColor: updated.iconBackgroundColor,
+    isPro: isUserPro(updated),
+  });
 }
 
 /**

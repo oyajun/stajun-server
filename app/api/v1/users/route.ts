@@ -10,6 +10,8 @@ const USER_SELECT = {
   name: true,
   iconEmoji: true,
   iconBackgroundColor: true,
+  isPro: true,
+  proExpiresAt: true,
 } satisfies Prisma.UserSelect;
 
 /**
@@ -114,6 +116,7 @@ export async function GET(request: Request) {
       name: u.name,
       iconEmoji: u.iconEmoji,
       iconBackgroundColor: u.iconBackgroundColor,
+      isPro: u.isPro,
       isFollowing: u.isFollowing,
       isStudying: u.isStudying,
       studyingSince: u.studyingSince ? u.studyingSince.toISOString() : null,

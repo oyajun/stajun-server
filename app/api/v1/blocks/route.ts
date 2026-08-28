@@ -45,6 +45,8 @@ export async function GET(request: Request) {
           name: true,
           iconEmoji: true,
           iconBackgroundColor: true,
+          isPro: true,
+          proExpiresAt: true,
         },
       })
     : [];
