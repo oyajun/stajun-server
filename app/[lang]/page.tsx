@@ -428,12 +428,15 @@ export default async function LandingPage({ params }: PageProps) {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 py-10 px-4 sm:px-6 bg-white">
-        <div className="max-w-5xl mx-auto flex items-center justify-center sm:justify-start gap-6 text-xs text-slate-600">
+        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center sm:justify-start gap-6 text-xs text-slate-600">
           <Link href={`/${currentLocale}/terms-of-service`} className="hover:text-slate-900 transition-colors">
             {dictionary.footer.termsOfService}
           </Link>
           <Link href={`/${currentLocale}/privacy-policy`} className="hover:text-slate-900 transition-colors">
             {dictionary.footer.privacyPolicy}
+          </Link>
+          <Link href={`/${currentLocale}/tokushoho`} className="hover:text-slate-900 transition-colors">
+            {dictionary.footer.tokushoho}
           </Link>
           <Link href={`/${currentLocale}/support`} className="hover:text-slate-900 transition-colors">
             {dictionary.footer.support}

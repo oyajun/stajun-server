@@ -92,6 +92,7 @@ export const ja: Dictionary = {
   footer: {
     termsOfService: "利用規約",
     privacyPolicy: "プライバシーポリシー",
+    tokushoho: "特定商取引法に基づく表記",
     support: "サポート",
     copyright: "© 2025-2026 JunJun. All rights reserved.",
   },

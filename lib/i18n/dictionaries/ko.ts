@@ -92,6 +92,7 @@ export const ko: Dictionary = {
   footer: {
     termsOfService: "이용약관",
     privacyPolicy: "개인정보 처리방침",
+    tokushoho: "특정상거래법에 따른 표기",
     support: "고객지원",
     copyright: "© 2025-2026 JunJun. All rights reserved.",
   },

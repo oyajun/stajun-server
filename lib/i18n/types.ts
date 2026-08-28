@@ -92,6 +92,7 @@ export interface Dictionary {
   footer: {
     termsOfService: string;
     privacyPolicy: string;
+    tokushoho: string;
     support: string;
     copyright: string;
   };

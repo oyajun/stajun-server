@@ -92,6 +92,7 @@ export const en: Dictionary = {
   footer: {
     termsOfService: "Terms of Service",
     privacyPolicy: "Privacy Policy",
+    tokushoho: "Commercial Disclosure",
     support: "Support",
     copyright: "© 2025-2026 JunJun. All rights reserved.",
   },
