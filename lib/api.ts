@@ -345,3 +345,123 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
     };
   });
 }
+
+/**
+ * ユーザーが関与する（ブロックした / された）相手のユーザーID一覧を取得する。
+ */
+export async function getBlockedUserIds(userId: string): Promise<string[]> {
+  const blocks = await prisma.block.findMany({
+    where: {
+      OR: [{ blockerId: userId }, { blockedId: userId }],
+    },
+    select: { blockerId: true, blockedId: true },
+  });
+  return blocks.map((b) =>
+    b.blockerId === userId ? b.blockedId : b.blockerId,
+  );
+}
+
+/**
+ * 未読通知件数を取得する。
+ * blockedUserIds が渡された場合はそれを使い、省略時はDBから取得する。
+ */
+export async function getUnreadNotificationCount(
+  userId: string,
+  blockedUserIds?: string[],
+): Promise<number> {
+  const excludedIds = blockedUserIds ?? (await getBlockedUserIds(userId));
+  return prisma.notification.count({
+    where: {
+      userId,
+      isRead: false,
+      ...(excludedIds.length > 0
+        ? {
+            OR: [
+              { actorId: null },
+              { actorId: { notIn: excludedIds } },
+            ],
+          }
+        : {}),
+    },
+  });
+}
+
+/**
+ * ユーザーの現在の勉強状態（勉強中か否か、開始時刻）を取得する。
+ */
+export async function getStudySessionStatus(
+  userId: string,
+): Promise<{ isStudying: boolean; startedAt: Date | null }> {
+  const active = await prisma.studySession.findFirst({
+    where: { userId, startedAt: { gt: studyingSinceThreshold() } },
+    select: { startedAt: true },
+  });
+  return {
+    isStudying: active !== null,
+    startedAt: active?.startedAt ?? null,
+  };
+}
+
+/**
+ * targetId がフォローしているユーザー一覧を取得し、
+ * 勉強中プレゼンス付与およびソート（勉強中先頭・開始時刻降順・lastActiveAt降順）を行って返す。
+ */
+export async function getFollowingUsersWithPresence(
+  viewerId: string,
+  targetId: string = viewerId,
+  blockedUserIds?: string[],
+) {
+  const excludedIds = blockedUserIds ?? (await getBlockedUserIds(viewerId));
+
+  const follows = await prisma.follow.findMany({
+    where: { followerId: targetId, followingId: { notIn: excludedIds } },
+    select: { followingId: true },
+  });
+  const ids = follows.map((f) => f.followingId);
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const rows = await prisma.user.findMany({
+    where: { id: { in: ids }, name: { not: null } },
+    select: {
+      id: true,
+      name: true,
+      iconEmoji: true,
+      iconBackgroundColor: true,
+      lastActiveAt: true,
+    },
+  });
+
+  const lastActiveMap = new Map(rows.map((r) => [r.id, r.lastActiveAt]));
+  const users = await annotateUsers(viewerId, rows);
+
+  users.sort((a, b) => {
+    // 勉強中を先頭に
+    if (a.isStudying !== b.isStudying) return a.isStudying ? -1 : 1;
+    // 勉強中同士は開始が新しい順
+    if (a.isStudying && b.isStudying) {
+      if (a.studyingSince && b.studyingSince) {
+        const diff = b.studyingSince.getTime() - a.studyingSince.getTime();
+        if (diff !== 0) return diff;
+      }
+      return (a.name ?? "").localeCompare(b.name ?? "");
+    }
+    // 勉強中でない人同士は lastActiveAt の新しい順（nullは最後）
+    const aLast = lastActiveMap.get(a.id);
+    const bLast = lastActiveMap.get(b.id);
+    if (aLast && bLast) {
+      const diff = bLast.getTime() - aLast.getTime();
+      if (diff !== 0) return diff;
+    } else if (aLast && !bLast) {
+      return -1;
+    } else if (!aLast && bLast) {
+      return 1;
+    }
+    // それ以外は name 昇順
+    return (a.name ?? "").localeCompare(b.name ?? "");
+  });
+
+  return users;
+}
+

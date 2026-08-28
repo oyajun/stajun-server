@@ -56,6 +56,8 @@ export function normalizeApiPath(pathname: string): string {
     'apns-token',
     'search',
     'recommended',
+    'polling',
+    'like',
   ]);
 
   return segments

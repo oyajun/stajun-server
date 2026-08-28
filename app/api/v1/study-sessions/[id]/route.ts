@@ -1,9 +1,8 @@
-import { prisma } from "@/lib/prisma";
 import {
   apiError,
+  getStudySessionStatus,
   requireOnboardedUser,
   resolveOnboardedUserId,
-  studyingSinceThreshold,
 } from "@/lib/api";
 
 /**
@@ -24,14 +23,6 @@ export async function GET(
     return apiError(404, "USER_NOT_FOUND", "ユーザーが見つかりません。");
   }
 
-  // 勉強中 = 行が存在し、かつ startedAt が24時間以内。
-  const active = await prisma.studySession.findFirst({
-    where: { userId: targetId, startedAt: { gt: studyingSinceThreshold() } },
-    select: { startedAt: true },
-  });
-
-  return Response.json({
-    isStudying: active !== null,
-    startedAt: active?.startedAt ?? null,
-  });
+  const status = await getStudySessionStatus(targetId);
+  return Response.json(status);
 }
