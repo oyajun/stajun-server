@@ -33,11 +33,11 @@
         "ja": "リアルタイムに勉強中かを共有しよう!",
         "ko": "실시간으로 공부 상태를 공유해보세요!"
       },
-      "localizedDescription": "Your icon glows rainbow while you study, letting friends know you’re working hard! \nShare your study time, comments, workouts, walks, chores, music, and more.\n[Features]\n・ Share your studying status with friends\n・ Get a push notification when someone you follow starts studying.\n・ Follow your friends\n・ Post your study time and content\n・ View your study time on graphs",
+      "localizedDescription": "Your icon glows rainbow while you study, letting friends know you’re working hard! \nShare your study time, comments, workouts, walks, chores, music, and more.\n[Features]\n・ Share your studying status with friends\n・ Get a push notification when someone you follow starts studying.\n・ Follow your friends\n・ Post your study time and content\n・ View your study time on graphs\n\nTerms of Use (EULA): https://junjun.oyajun.com/en/terms-of-service\nPrivacy Policy: https://junjun.oyajun.com/en/privacy-policy",
       "localizedDescriptions": {
-        "en": "Your icon glows rainbow while you study, letting friends know you’re working hard! \nShare your study time, comments, workouts, walks, chores, music, and more.\n[Features]\n・ Share your studying status with friends\n・ Get a push notification when someone you follow starts studying.\n・ Follow your friends\n・ Post your study time and content\n・ View your study time on graphs",
-        "ja": "勉強時間を計測している間、アイコンが虹色に光って友達にアピール！\n勉強が終わったら勉強時間とコメントを投稿しよう。\n勉強以外にも、散歩、筋トレ、家事、楽器など頑張ってることを、みんなにシェアできるよ。\n【機能】\n・勉強中のステータスを友達と共有\n・フォロー中の人が勉強を始めたら通知\n・友達をフォロー\n・勉強時間と内容を投稿\n・勉強時間をグラフで表示",
-        "ko": "공부 시간을 측정하는 동안 아이콘이 무지개색으로 빛나며 친구들에게 알려보세요! 공부가 끝나면 공부 시간과 댓글을 게시해 보세요. 공부뿐만 아니라 산책, 운동, 집안일, 악기 연주 등 내가 열심히 하고 있는 일도 모두와 공유할 수 있어요.\n[기능]\n・ 공부 중인 상태를 친구들과 공유\n・ 팔로우한 사람이 공부를 시작하면 푸시 알림을 받아보세요\n・ 친구들을 팔로우\n・ 공부 시간과 내용을 기록\n・ 공부 시간을 그래프로 확인"
+        "en": "Your icon glows rainbow while you study, letting friends know you’re working hard! \nShare your study time, comments, workouts, walks, chores, music, and more.\n[Features]\n・ Share your studying status with friends\n・ Get a push notification when someone you follow starts studying.\n・ Follow your friends\n・ Post your study time and content\n・ View your study time on graphs\n\nTerms of Use (EULA): https://junjun.oyajun.com/en/terms-of-service\nPrivacy Policy: https://junjun.oyajun.com/en/privacy-policy",
+        "ja": "勉強時間を計測している間、アイコンが虹色に光って友達にアピール！\n勉強が終わったら勉強時間とコメントを投稿しよう。\n勉強以外にも、散歩、筋トレ、家事、楽器など頑張ってることを、みんなにシェアできるよ。\n【機能】\n・勉強中のステータスを友達と共有\n・フォロー中の人が勉強を始めたら通知\n・友達をフォロー\n・勉強時間と内容を投稿\n・勉強時間をグラフで表示\n\n利用規約 (EULA): https://junjun.oyajun.com/ja/terms-of-service\nプライバシーポリシー: https://junjun.oyajun.com/ja/privacy-policy",
+        "ko": "공부 시간을 측정하는 동안 아이콘이 무지개색으로 빛나며 친구들에게 알려보세요! 공부가 끝나면 공부 시간과 댓글을 게시해 보세요. 공부뿐만 아니라 산책, 운동, 집안일, 악기 연주 등 내가 열심히 하고 있는 일도 모두와 공유할 수 있어요.\n[기능]\n・ 공부 중인 상태를 친구들과 공유\n・ 팔로우한 사람이 공부를 시작하면 푸시 알림을 받아보세요\n・ 친구들을 팔로우\n・ 공부 시간과 내용을 기록\n・ 공부 시간을 그래프로 확인\n\n이용약관 (EULA): https://junjun.oyajun.com/ko/terms-of-service\n개인정보 처리방침: https://junjun.oyajun.com/ko/privacy-policy"
       },
       "iconURL": "https://raw.githubusercontent.com/oyajun/junjun-asset/main/icon/png/1024/iOS-Default-1024x1024@1x.png",
       "tintColor": "#3B82F6",
@@ -103,6 +103,48 @@
         ]
       },
       "versions": [
+        {
+          "version": "1.5.0",
+          "buildVersion": "1",
+          "date": "2026-08-28",
+          "localizedDescription": "- Introduced premium subscription plan \"JunJun Pro\".\n- Reduced server access frequency for better efficiency.",
+          "localizedDescriptions": {
+            "en": "- Introduced premium subscription plan \"JunJun Pro\".\n- Reduced server access frequency for better efficiency.",
+            "ja": "・有料プラン JunJun Pro 提供開始\n・サーバへのアクセス回数を削減",
+            "ko": "- 유료 플랜 \"JunJun Pro\" 제공 시작\n- 서버 접속 횟수 감소 및 효율화"
+          },
+          "downloadURL": "https://junjun.oyajun.com/altstore/adp/238c3371-1f99-4872-a468-abfb2b976d7c/manifest.json",
+          "size": 5887010,
+          "minOSVersion": "26.0",
+          "assetURLs": {
+            "01410d6f-f04d-3a27-8ea8-0f962d26eb60": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/01410d6f-f04d-3a27-8ea8-0f962d26eb60.ipa",
+            "0b0a4e09-2856-3c33-9f21-44c49ca1493c": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/0b0a4e09-2856-3c33-9f21-44c49ca1493c.ipa",
+            "1b6e7be8-3957-32bc-9111-15e1dcfbe455": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/1b6e7be8-3957-32bc-9111-15e1dcfbe455.ipa",
+            "1e2538b7-09c2-3e9c-b037-2fcb34d2a45d": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/1e2538b7-09c2-3e9c-b037-2fcb34d2a45d.ipa",
+            "1e393f8b-0c06-3486-8d54-2fce4f431aef": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/1e393f8b-0c06-3486-8d54-2fce4f431aef.ipa",
+            "2586dfcb-ca69-3a18-905d-0ca05197d92e": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/2586dfcb-ca69-3a18-905d-0ca05197d92e.ipa",
+            "3180a030-a2b8-39be-a0a1-871088ca1ef2": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/3180a030-a2b8-39be-a0a1-871088ca1ef2.ipa",
+            "32922507-3b6b-3d63-b39e-7955fbbe0715": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/32922507-3b6b-3d63-b39e-7955fbbe0715.ipa",
+            "3c74e59d-d2ef-363d-9a3b-93131e58a541": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/3c74e59d-d2ef-363d-9a3b-93131e58a541.ipa",
+            "411a9a2b-4664-32e9-afdd-be82c42432a5": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/411a9a2b-4664-32e9-afdd-be82c42432a5.ipa",
+            "51a33e7a-55a6-3577-b718-da7c4e979363": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/51a33e7a-55a6-3577-b718-da7c4e979363.ipa",
+            "63a32402-c0a8-349d-9f17-c5841ec0855f": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/63a32402-c0a8-349d-9f17-c5841ec0855f.ipa",
+            "646bdd81-4548-36fa-b050-e5f98a6f9323": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/646bdd81-4548-36fa-b050-e5f98a6f9323.ipa",
+            "8b66cb17-3f4d-336f-b302-d0ec5b1af58c": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/8b66cb17-3f4d-336f-b302-d0ec5b1af58c.ipa",
+            "904c937f-ad23-3afb-ad77-591f52980d88": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/904c937f-ad23-3afb-ad77-591f52980d88.ipa",
+            "9767a068-ee39-39f6-97e8-d0e5f87bcf9c": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/9767a068-ee39-39f6-97e8-d0e5f87bcf9c.ipa",
+            "a893909d-4a14-3c66-8cc6-77505ff60a77": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/a893909d-4a14-3c66-8cc6-77505ff60a77.ipa",
+            "bc3ee95e-2c26-3cee-b67b-050e9609661f": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/bc3ee95e-2c26-3cee-b67b-050e9609661f.ipa",
+            "d02eb31e-5fcf-3a73-8b6c-a82600bfa607": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/d02eb31e-5fcf-3a73-8b6c-a82600bfa607.ipa",
+            "f91bf796-0c41-35b7-9746-f5b6456d97a6": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/f91bf796-0c41-35b7-9746-f5b6456d97a6.ipa",
+            "ffc7fc3b-75e7-3ae1-88ce-f47f36be7eda": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/ffc7fc3b-75e7-3ae1-88ce-f47f36be7eda.ipa",
+            "manifest": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/manifest.json",
+            "signature": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/signature",
+            "1a4fdcf0-9970-39b0-9b4b-2b55f6fe87f7": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/1a4fdcf0-9970-39b0-9b4b-2b55f6fe87f7.ipa",
+            "326ba413-0dad-3a1a-ac88-df4e6abe6f61": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/326ba413-0dad-3a1a-ac88-df4e6abe6f61.ipa",
+            "4c45b37a-d603-38e3-8a15-83a6f0739be6": "https://github.com/oyajun/stajun-ios/releases/download/v1.5.0/4c45b37a-d603-38e3-8a15-83a6f0739be6.ipa"
+          }
+        },
         {
           "version": "1.4.0",
           "buildVersion": "1",
