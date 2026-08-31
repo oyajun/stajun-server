@@ -330,18 +330,23 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
     }),
     prisma.studySession.findMany({
       where: { userId: { in: ids }, startedAt: { gt: studyingSinceThreshold() } },
-      select: { userId: true, startedAt: true },
+      select: {
+        userId: true,
+        startedAt: true,
+        isPaused: true,
+        accumulatedSeconds: true,
+      },
     }),
   ]);
   const followingMap = new Map(
     follows.map((f) => [f.followingId, f.muteStudyStartNotification]),
   );
   // StudySession は1ユーザー1行なので userId で一意にマップできる。
-  const studyingSince = new Map(
-    activeSessions.map((s) => [s.userId, s.startedAt]),
+  const sessionMap = new Map(
+    activeSessions.map((s) => [s.userId, s]),
   );
   return rows.map((r) => {
-    const since = studyingSince.get(r.id) ?? null;
+    const session = sessionMap.get(r.id);
     const isFollowing = followingMap.has(r.id);
     const muteMode = isFollowing ? (followingMap.get(r.id) ?? 0) : 0;
     return {
@@ -353,8 +358,10 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
       isFollowing,
       muteStudyStartNotification: muteMode,
       isMuted: muteMode === 1,
-      isStudying: since !== null,
-      studyingSince: since,
+      isStudying: session != null,
+      studyingSince: session?.startedAt ?? null,
+      isPaused: session?.isPaused ?? false,
+      accumulatedSeconds: session?.accumulatedSeconds ?? 0,
     };
   });
 }
@@ -404,14 +411,21 @@ export async function getUnreadNotificationCount(
  */
 export async function getStudySessionStatus(
   userId: string,
-): Promise<{ isStudying: boolean; startedAt: Date | null }> {
+): Promise<{
+  isStudying: boolean;
+  startedAt: Date | null;
+  isPaused: boolean;
+  accumulatedSeconds: number;
+}> {
   const active = await prisma.studySession.findFirst({
     where: { userId, startedAt: { gt: studyingSinceThreshold() } },
-    select: { startedAt: true },
+    select: { startedAt: true, isPaused: true, accumulatedSeconds: true },
   });
   return {
     isStudying: active !== null,
     startedAt: active?.startedAt ?? null,
+    isPaused: active?.isPaused ?? false,
+    accumulatedSeconds: active?.accumulatedSeconds ?? 0,
   };
 }
 

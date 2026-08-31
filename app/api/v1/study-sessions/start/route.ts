@@ -16,23 +16,42 @@ export async function POST(request: Request) {
   const now = new Date();
   const existing = await prisma.studySession.findUnique({
     where: { userId: user.id },
-    select: { startedAt: true },
+    select: { startedAt: true, isPaused: true, accumulatedSeconds: true },
   });
 
   // 既に勉強中（24時間以内）ならサーバー側は黙って維持する。
   if (existing && existing.startedAt > studyingSinceThreshold(now)) {
-    return Response.json({ startedAt: existing.startedAt });
+    return Response.json({
+      startedAt: existing.startedAt,
+      isPaused: existing.isPaused,
+      accumulatedSeconds: existing.accumulatedSeconds,
+    });
   }
 
   const session = await prisma.studySession.upsert({
     where: { userId: user.id },
-    create: { userId: user.id, startedAt: now },
-    update: { startedAt: now }, // 古い行はここで現在時刻に上書き
-    select: { startedAt: true },
+    create: {
+      userId: user.id,
+      startedAt: now,
+      isPaused: false,
+      pausedAt: null,
+      accumulatedSeconds: 0,
+    },
+    update: {
+      startedAt: now,
+      isPaused: false,
+      pausedAt: null,
+      accumulatedSeconds: 0,
+    }, // 古い行はここで現在時刻に上書き
+    select: { startedAt: true, isPaused: true, accumulatedSeconds: true },
   });
 
   // フォロワーへプッシュ通知（レスポンスをブロックしない）
   void sendToFollowers(user.id, user.name ?? "Someone");
 
-  return Response.json({ startedAt: session.startedAt });
+  return Response.json({
+    startedAt: session.startedAt,
+    isPaused: session.isPaused,
+    accumulatedSeconds: session.accumulatedSeconds,
+  });
 }

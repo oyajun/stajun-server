@@ -123,8 +123,11 @@ model Block {
 // 勉強中判定 = 行が存在し、かつ startedAt が24時間以内（詳細は docs/study-session-state.md）。
 
 model StudySession {
-  userId    String   @id
-  startedAt DateTime @default(now())
+  userId             String    @id
+  startedAt          DateTime  @default(now())
+  isPaused           Boolean   @default(false)
+  pausedAt           DateTime?
+  accumulatedSeconds Int       @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
