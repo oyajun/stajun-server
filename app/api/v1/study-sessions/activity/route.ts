@@ -18,11 +18,11 @@ export async function PUT(request: Request) {
   const { user } = authed;
 
   const body = await readJson(request);
-  if (!body || typeof body !== "object" || !("activity" in body)) {
-    return apiError(400, "BAD_REQUEST", "activityフィールドが必要です。");
+  if (!body || typeof body !== "object") {
+    return apiError(400, "BAD_REQUEST", "無効なリクエストボディです。");
   }
 
-  const rawActivity = (body as { activity: unknown }).activity;
+  const rawActivity = (body as { activity?: unknown }).activity;
   let activity: string | null = null;
   if (typeof rawActivity === "string") {
     const trimmed = rawActivity.trim();
@@ -36,7 +36,7 @@ export async function PUT(request: Request) {
       }
       activity = trimmed;
     }
-  } else if (rawActivity !== null) {
+  } else if (rawActivity !== null && rawActivity !== undefined) {
     return apiError(400, "BAD_REQUEST", "activityは文字列またはnullで指定してください。");
   }
 
