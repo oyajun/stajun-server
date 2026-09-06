@@ -271,6 +271,14 @@ export function isValidComment(v: unknown): v is string {
   return [...v].length <= COMMENT_MAX;
 }
 
+// やっていること（アクティビティ）: 任意。制御文字（改行等）不可・最大50文字。
+export const ACTIVITY_MAX = 50;
+export function isValidActivity(v: unknown): v is string {
+  if (typeof v !== "string") return false;
+  if (CONTROL_CHARS_RE.test(v)) return false;
+  return [...v].length <= ACTIVITY_MAX;
+}
+
 // --- ユーザーid解決・要約 ---
 
 /** パスの :id を解決する。`"me"` は自分自身の id に読み替える。 */
@@ -335,6 +343,7 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
         startedAt: true,
         isPaused: true,
         accumulatedSeconds: true,
+        activity: true,
       },
     }),
   ]);
@@ -362,28 +371,29 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
       studyingSince: session?.startedAt ?? null,
       isPaused: session?.isPaused ?? false,
       accumulatedSeconds: session?.accumulatedSeconds ?? 0,
+      activity: session?.activity ?? null,
     };
   });
 }
 
 /**
  * ユーザーが関与する（ブロックした / された）相手のユーザーID一覧を取得する。
+ * ブロック中ユーザーの投稿やフォロー一覧を除外するために使う。
  */
 export async function getBlockedUserIds(userId: string): Promise<string[]> {
   const blocks = await prisma.block.findMany({
-    where: {
-      OR: [{ blockerId: userId }, { blockedId: userId }],
-    },
+    where: { OR: [{ blockerId: userId }, { blockedId: userId }] },
     select: { blockerId: true, blockedId: true },
   });
-  return blocks.map((b) =>
-    b.blockerId === userId ? b.blockedId : b.blockerId,
-  );
+  const ids = new Set<string>();
+  for (const b of blocks) {
+    ids.add(b.blockerId === userId ? b.blockedId : b.blockerId);
+  }
+  return [...ids];
 }
 
 /**
- * 未読通知件数を取得する。
- * blockedUserIds が渡された場合はそれを使い、省略時はDBから取得する。
+ * 未読通知数を取得する。
  */
 export async function getUnreadNotificationCount(
   userId: string,
@@ -416,16 +426,18 @@ export async function getStudySessionStatus(
   startedAt: Date | null;
   isPaused: boolean;
   accumulatedSeconds: number;
+  activity: string | null;
 }> {
   const active = await prisma.studySession.findFirst({
     where: { userId, startedAt: { gt: studyingSinceThreshold() } },
-    select: { startedAt: true, isPaused: true, accumulatedSeconds: true },
+    select: { startedAt: true, isPaused: true, accumulatedSeconds: true, activity: true },
   });
   return {
     isStudying: active !== null,
     startedAt: active?.startedAt ?? null,
     isPaused: active?.isPaused ?? false,
     accumulatedSeconds: active?.accumulatedSeconds ?? 0,
+    activity: active?.activity ?? null,
   };
 }
 
