@@ -48,7 +48,12 @@ export async function GET(
     }),
     prisma.studySession.findFirst({
       where: { userId: target.id, startedAt: { gt: studyingSinceThreshold() } },
-      select: { startedAt: true },
+      select: {
+        startedAt: true,
+        isPaused: true,
+        accumulatedSeconds: true,
+        activity: true,
+      },
     }),
   ]);
 
@@ -64,5 +69,8 @@ export async function GET(
     isMuted: muteMode === 1,
     isStudying: activeSession !== null,
     studyingSince: activeSession?.startedAt ?? null,
+    isPaused: activeSession?.isPaused ?? false,
+    accumulatedSeconds: activeSession?.accumulatedSeconds ?? 0,
+    activity: activeSession?.activity ?? null,
   });
 }
