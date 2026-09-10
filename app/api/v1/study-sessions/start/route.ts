@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   isValidActivity,
@@ -73,8 +74,10 @@ export async function POST(request: Request) {
     select: { startedAt: true, isPaused: true, accumulatedSeconds: true, activity: true },
   });
 
-  // フォロワーへプッシュ通知（レスポンスをブロックしない）
-  void sendToFollowers(user.id, user.name ?? "Someone");
+  // フォロワーへプッシュ通知（after API によりレスポンスをブロックせず即座に返し、サーバーレス終了前に確実に完走）
+  after(async () => {
+    await sendToFollowers(user.id, user.name ?? "Someone");
+  });
 
   return Response.json({
     startedAt: session.startedAt,

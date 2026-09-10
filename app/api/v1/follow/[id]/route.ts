@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   apiError,
@@ -45,13 +46,15 @@ export async function PUT(
       },
     });
 
-    // APNs プッシュ通知を送信（レスポンスをブロックしない）
-    void sendFollowNotification(
-      targetId,
-      user.name ?? "",
-      user.id,
-      notification.id,
-    );
+    // APNs プッシュ通知を送信（after API によりレスポンスをブロックせず即座に返し、サーバーレス終了前に確実に完走）
+    after(async () => {
+      await sendFollowNotification(
+        targetId,
+        user.name ?? "",
+        user.id,
+        notification.id,
+      );
+    });
   }
 
   const muteMode = existingFollow ? existingFollow.muteStudyStartNotification : 0;

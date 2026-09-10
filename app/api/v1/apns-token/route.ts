@@ -1,11 +1,11 @@
-import { prisma } from "@/lib/prisma";
+import { setDeviceTokenForSession } from "@/lib/apns";
 import { apiError, readJson, requireOnboardedUser } from "@/lib/api";
 
 /**
- * POST /api/v1/apns-token — APNs デバイストークンを登録する。
+ * POST /api/v1/apns-token — APNs デバイストークンを登録・上書きする。
  *
  * リクエストボディ: { token: string }
- * - 同一トークンは upsert（重複なし）
+ * - sessionId と userId をID（キー）として、該当セッションの token を最新値で上書き
  * - 成功時: 200 {}
  */
 export async function POST(request: Request) {
@@ -22,14 +22,7 @@ export async function POST(request: Request) {
     return apiError(400, "INVALID_TOKEN", "token が不正です。");
   }
 
-  // token は UNIQUE 制約あり。同じトークンが別ユーザーから来た場合も含め、
-  // userId / sessionId を最新のもので上書きする（端末の再ログイン対応）。
-  // sessionId に Cascade が設定されているため、ログアウト（Session 削除）時に自動でトークンも削除される。
-  await prisma.deviceToken.upsert({
-    where: { token },
-    create: { userId: user.id, sessionId: session?.id, token },
-    update: { userId: user.id, sessionId: session?.id },
-  });
+  await setDeviceTokenForSession(user.id, session.id, token);
 
   return Response.json({});
 }

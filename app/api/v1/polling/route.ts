@@ -1,3 +1,4 @@
+import { setDeviceTokenForSession } from "@/lib/apns";
 import {
   getBlockedUserIds,
   getFollowingUsersWithPresence,
@@ -13,11 +14,22 @@ import {
  * 1. 未読通知件数 (unreadCount / unreadNotificationCount)
  * 2. フォロー中ユーザーの勉強中プレゼンス一覧 (users)
  * 3. 自身の現在の学習状態 (studySession)
+ *
+ * 【後方互換性】
+ * - 従来のパラメータなし GET リクエストは完全にそのまま動作（トークンなしでもスルー）。
+ * - クエリに ?apnsToken=... が付与されている場合は、sessionId と userId をキーにしてトークンを上書き。
  */
 export async function GET(request: Request) {
   const authed = await requireOnboardedUser(request);
   if (authed instanceof Response) return authed;
-  const { user } = authed;
+  const { user, session } = authed;
+
+  // オプショナル: クエリに apnsToken があればデバイストークンを上書き（なければスルー）
+  const url = new URL(request.url);
+  const apnsToken = url.searchParams.get("apnsToken")?.trim();
+  if (apnsToken && session?.id) {
+    await setDeviceTokenForSession(user.id, session.id, apnsToken);
+  }
 
   // ブロック関係にあるユーザーIDを取得し、通知とフォローの除外で共通利用
   const blockedUserIds = await getBlockedUserIds(user.id);

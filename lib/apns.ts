@@ -93,6 +93,8 @@ type SendResult =
   | { ok: true }
   | { ok: false; reason: "invalid_token" | "other"; error?: string };
 
+const APNS_TIMEOUT_MS = 5000;
+
 async function sendPushNotificationToHost(
   host: string,
   deviceToken: string,
@@ -100,24 +102,51 @@ async function sendPushNotificationToHost(
   jwt: string,
 ): Promise<SendResult> {
   return new Promise((resolve) => {
+    let resolved = false;
+    const safeResolve = (res: SendResult) => {
+      if (resolved) return;
+      resolved = true;
+      if (timeoutTimer) clearTimeout(timeoutTimer);
+      try {
+        client.destroy();
+      } catch {
+        // ignore
+      }
+      resolve(res);
+    };
+
     const client = connect(`https://${host}`);
 
+    const timeoutTimer = setTimeout(() => {
+      safeResolve({ ok: false, reason: "other", error: "APNs connection timeout" });
+    }, APNS_TIMEOUT_MS);
+
     client.on("error", (err) => {
-      client.destroy();
-      resolve({ ok: false, reason: "other", error: String(err) });
+      safeResolve({ ok: false, reason: "other", error: String(err) });
     });
 
     const body = JSON.stringify(payload);
-    const req = client.request({
-      ":method": "POST",
-      ":path": `/3/device/${deviceToken}`,
-      ":scheme": "https",
-      ":authority": host,
-      authorization: `bearer ${jwt}`,
-      "apns-topic": APNS_BUNDLE_ID,
-      "apns-push-type": "alert",
-      "content-type": "application/json",
-      "content-length": Buffer.byteLength(body),
+    let req: ReturnType<typeof client.request>;
+    try {
+      req = client.request({
+        ":method": "POST",
+        ":path": `/3/device/${deviceToken}`,
+        ":scheme": "https",
+        ":authority": host,
+        authorization: `bearer ${jwt}`,
+        "apns-topic": APNS_BUNDLE_ID,
+        "apns-push-type": "alert",
+        "apns-priority": "10",
+        "content-type": "application/json",
+        "content-length": Buffer.byteLength(body),
+      });
+    } catch (err) {
+      safeResolve({ ok: false, reason: "other", error: String(err) });
+      return;
+    }
+
+    req.on("error", (err) => {
+      safeResolve({ ok: false, reason: "other", error: String(err) });
     });
 
     req.write(body);
@@ -135,9 +164,8 @@ async function sendPushNotificationToHost(
     });
 
     req.on("end", () => {
-      client.close();
       if (statusCode === 200) {
-        resolve({ ok: true });
+        safeResolve({ ok: true });
       } else {
         let reason = "";
         try {
@@ -152,7 +180,7 @@ async function sendPushNotificationToHost(
           reason === "BadEnvironmentKeyInToken" ||
           reason === "DeviceTokenNotForTopic" ||
           reason === "TopicDisallowed";
-        resolve({
+        safeResolve({
           ok: false,
           reason: isInvalidToken ? "invalid_token" : "other",
           error: reason,
@@ -164,7 +192,8 @@ async function sendPushNotificationToHost(
 
 /**
  * 指定トークンに APNs プッシュ通知を送る。
- * メインの環境（本番/Sandbox）で失敗した場合、フォールバック環境でも試行する。
+ * メインの環境（本番/Sandbox）で環境不一致（invalid_token）と疑われる場合のみ、フォールバック環境でも試行する。
+ * 両方の環境で invalid_token と判定された場合のみ invalid_token として返す（一時エラーでの誤削除防止）。
  */
 async function sendPushNotification(
   deviceToken: string,
@@ -192,14 +221,79 @@ async function sendPushNotification(
     return primaryResult;
   }
 
-  // 2. エラーの場合、環境違い（Sandbox ↔ Production）の可能性があるのでフォールバック
-  const fallbackResult = await sendPushNotificationToHost(
-    FALLBACK_APNS_HOST,
-    deviceToken,
-    payload,
-    jwt,
-  );
-  return fallbackResult;
+  // 2. 一次送信が「invalid_token（BadDeviceToken等）」の場合のみ、環境違い（Sandbox ↔ Production）の可能性を検証
+  if (primaryResult.reason === "invalid_token") {
+    const fallbackResult = await sendPushNotificationToHost(
+      FALLBACK_APNS_HOST,
+      deviceToken,
+      payload,
+      jwt,
+    );
+    if (fallbackResult.ok) {
+      return fallbackResult;
+    }
+    // 両方の環境で失敗した場合：
+    // フォールバック先でも invalid_token だった場合のみ「真の無効トークン」として削除対象にする
+    if (fallbackResult.reason === "invalid_token") {
+      return fallbackResult;
+    }
+    // フォールバック先がネットワーク等の "other" エラーの場合は安全側に倒して "other"（削除しない）にする
+    return fallbackResult;
+  }
+
+  // PRIMARY が一時的ネットワーク障害やタイムアウト等の "other" だった場合は、
+  // フォールバック先で BadDeviceToken と誤判定されて削除されないよう primaryResult（other）のまま返す
+  return primaryResult;
+}
+
+// ---------------------------------------------------------------------------
+// デバイストークン登録（userId と sessionId をキーとして token を上書き）
+// ---------------------------------------------------------------------------
+
+/**
+ * userId と sessionId をID（識別子）として、デバイストークンを上書き保存する。
+ * - 同じ token を保持している別セッション/他ユーザーの古いレコードがあれば重複を防ぐため削除。
+ * - 同じ userId と sessionId を持つ行があれば token を上書き更新。
+ * - なければ新規作成。
+ */
+export async function setDeviceTokenForSession(
+  userId: string,
+  sessionId: string,
+  token: string,
+): Promise<void> {
+  const trimmed = token.trim();
+  if (!trimmed) return;
+
+  // 1. 同一トークンを持つ別セッションのレコードを削除（端末再ログイン時のユニーク制約エラー防止）
+  await prisma.deviceToken.deleteMany({
+    where: {
+      token: trimmed,
+      NOT: {
+        userId,
+        sessionId,
+      },
+    },
+  });
+
+  // 2. userId と sessionId をキーとして該当セッションの token を上書き
+  const existing = await prisma.deviceToken.findFirst({
+    where: { userId, sessionId },
+  });
+
+  if (existing) {
+    await prisma.deviceToken.update({
+      where: { id: existing.id },
+      data: { token: trimmed },
+    });
+  } else {
+    await prisma.deviceToken.create({
+      data: {
+        userId,
+        sessionId,
+        token: trimmed,
+      },
+    });
+  }
 }
 
 // ---------------------------------------------------------------------------
