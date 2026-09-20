@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { apiError, requireOnboardedUser } from "@/lib/api";
+import { apiError, getBlockingUserIds, requireOnboardedUser } from "@/lib/api";
 
 /**
  * POST /api/v1/posts/:id/like — 投稿にいいねをつける（冪等）。
@@ -24,17 +24,15 @@ export async function POST(
     return apiError(404, "POST_NOT_FOUND", "投稿が見つかりません。");
   }
 
-  // ブロック関係のチェック
+  // 自分が投稿者をブロックしている場合はいいね不可（相手からブロックされている場合は通常通り許可）
   if (post.userId !== user.id) {
-    const isBlocked = await prisma.block.findFirst({
+    const isBlocking = await prisma.block.findUnique({
       where: {
-        OR: [
-          { blockerId: user.id, blockedId: post.userId },
-          { blockerId: post.userId, blockedId: user.id },
-        ],
+        blockerId_blockedId: { blockerId: user.id, blockedId: post.userId },
       },
+      select: { id: true },
     });
-    if (isBlocked) {
+    if (isBlocking) {
       return apiError(404, "POST_NOT_FOUND", "投稿が見つかりません。");
     }
   }
@@ -53,9 +51,18 @@ export async function POST(
     update: {},
   });
 
-  const likeCount = await prisma.postLike.count({
-    where: { postId: id },
-  });
+  const [totalLikeCount, blockingIds] = await Promise.all([
+    prisma.postLike.count({ where: { postId: id } }),
+    getBlockingUserIds(user.id),
+  ]);
+
+  const blockedCount = blockingIds.length > 0
+    ? await prisma.postLike.count({
+        where: { postId: id, userId: { in: blockingIds } },
+      })
+    : 0;
+
+  const likeCount = Math.max(0, totalLikeCount - blockedCount);
 
   return Response.json({
     likeCount,
@@ -84,9 +91,18 @@ export async function DELETE(
     },
   });
 
-  const likeCount = await prisma.postLike.count({
-    where: { postId: id },
-  });
+  const [totalLikeCount, blockingIds] = await Promise.all([
+    prisma.postLike.count({ where: { postId: id } }),
+    getBlockingUserIds(user.id),
+  ]);
+
+  const blockedCount = blockingIds.length > 0
+    ? await prisma.postLike.count({
+        where: { postId: id, userId: { in: blockingIds } },
+      })
+    : 0;
+
+  const likeCount = Math.max(0, totalLikeCount - blockedCount);
 
   return Response.json({
     likeCount,

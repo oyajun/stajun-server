@@ -25,6 +25,17 @@ export async function PUT(
     return apiError(400, "CANNOT_FOLLOW_SELF", "自分自身はフォローできません。");
   }
 
+  // 自分が対象ユーザーをブロックしている場合はフォロー不可
+  const isBlockingTarget = await prisma.block.findUnique({
+    where: {
+      blockerId_blockedId: { blockerId: user.id, blockedId: targetId },
+    },
+    select: { id: true },
+  });
+  if (isBlockingTarget) {
+    return apiError(400, "CANNOT_FOLLOW_BLOCKED_USER", "ブロック中のユーザーはフォローできません。");
+  }
+
   const existingFollow = await prisma.follow.findUnique({
     where: {
       followerId_followingId: { followerId: user.id, followingId: targetId },
@@ -36,25 +47,35 @@ export async function PUT(
       data: { followerId: user.id, followingId: targetId },
     });
 
-    // 通知レコードを作成（未読）
-    const notification = await prisma.notification.create({
-      data: {
-        userId: targetId,
-        actorId: user.id,
-        type: "FOLLOW",
-        isRead: false,
+    // 対象ユーザーからブロックされている場合は通知を送らない（シャドウフォロー）
+    const isBlockedByTarget = await prisma.block.findUnique({
+      where: {
+        blockerId_blockedId: { blockerId: targetId, blockedId: user.id },
       },
+      select: { id: true },
     });
 
-    // APNs プッシュ通知を送信（after API によりレスポンスをブロックせず即座に返し、サーバーレス終了前に確実に完走）
-    after(async () => {
-      await sendFollowNotification(
-        targetId,
-        user.name ?? "",
-        user.id,
-        notification.id,
-      );
-    });
+    if (!isBlockedByTarget) {
+      // 通知レコードを作成（未読）
+      const notification = await prisma.notification.create({
+        data: {
+          userId: targetId,
+          actorId: user.id,
+          type: "FOLLOW",
+          isRead: false,
+        },
+      });
+
+      // APNs プッシュ通知を送信（after API によりレスポンスをブロックせず即座に返し、サーバーレス終了前に確実に完走）
+      after(async () => {
+        await sendFollowNotification(
+          targetId,
+          user.name ?? "",
+          user.id,
+          notification.id,
+        );
+      });
+    }
   }
 
   const muteMode = existingFollow ? existingFollow.muteStudyStartNotification : 0;

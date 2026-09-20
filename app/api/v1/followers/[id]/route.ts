@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import {
   annotateUsers,
   apiError,
+  getBlockingUserIds,
   parseIntParam,
   requireOnboardedUser,
   resolveOnboardedUserId,
@@ -40,15 +41,7 @@ export async function GET(
     max: Number.MAX_SAFE_INTEGER,
   });
 
-  const blocks = await prisma.block.findMany({
-    where: {
-      OR: [{ blockerId: user.id }, { blockedId: user.id }],
-    },
-    select: { blockerId: true, blockedId: true },
-  });
-  const excludedIds = blocks.map((b) =>
-    b.blockerId === user.id ? b.blockedId : b.blockerId
-  );
+  const excludedIds = await getBlockingUserIds(user.id);
 
   const total = await prisma.follow.count({
     where: { followingId: targetId, followerId: { notIn: excludedIds } },

@@ -377,8 +377,21 @@ export async function annotateUsers(viewerId: string, rows: UserRow[]) {
 }
 
 /**
+/**
+ * 自分がブロックしている相手のユーザーID一覧を取得する。
+ * 自分から見えなくする（片方向シャドウ除外）ために使う。
+ */
+export async function getBlockingUserIds(userId: string): Promise<string[]> {
+  const blocks = await prisma.block.findMany({
+    where: { blockerId: userId },
+    select: { blockedId: true },
+  });
+  return blocks.map((b) => b.blockedId);
+}
+
+/**
  * ユーザーが関与する（ブロックした / された）相手のユーザーID一覧を取得する。
- * ブロック中ユーザーの投稿やフォロー一覧を除外するために使う。
+ * おすすめユーザーなど、双方向で除外する必要がある箇所で使う。
  */
 export async function getBlockedUserIds(userId: string): Promise<string[]> {
   const blocks = await prisma.block.findMany({
@@ -399,7 +412,7 @@ export async function getUnreadNotificationCount(
   userId: string,
   blockedUserIds?: string[],
 ): Promise<number> {
-  const excludedIds = blockedUserIds ?? (await getBlockedUserIds(userId));
+  const excludedIds = blockedUserIds ?? (await getBlockingUserIds(userId));
   return prisma.notification.count({
     where: {
       userId,
@@ -450,7 +463,7 @@ export async function getFollowingUsersWithPresence(
   targetId: string = viewerId,
   blockedUserIds?: string[],
 ) {
-  const excludedIds = blockedUserIds ?? (await getBlockedUserIds(viewerId));
+  const excludedIds = blockedUserIds ?? (await getBlockingUserIds(viewerId));
 
   const follows = await prisma.follow.findMany({
     where: { followerId: targetId, followingId: { notIn: excludedIds } },

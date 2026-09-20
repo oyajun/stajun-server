@@ -36,7 +36,7 @@ export async function GET(
     return apiError(404, "USER_NOT_FOUND", "ユーザーが見つかりません。");
   }
 
-  const [follow, activeSession] = await Promise.all([
+  const [follow, activeSession, block] = await Promise.all([
     prisma.follow.findUnique({
       where: {
         followerId_followingId: {
@@ -55,6 +55,17 @@ export async function GET(
         activity: true,
       },
     }),
+    target.id === user.id
+      ? null
+      : prisma.block.findUnique({
+          where: {
+            blockerId_blockedId: {
+              blockerId: user.id,
+              blockedId: target.id,
+            },
+          },
+          select: { id: true },
+        }),
   ]);
 
   const muteMode = follow ? follow.muteStudyStartNotification : 0;
@@ -65,6 +76,7 @@ export async function GET(
     iconBackgroundColor: target.iconBackgroundColor || "#CCCCCC",
     isPro: isUserPro(target),
     isFollowing: follow !== null,
+    isBlocked: block !== null,
     muteStudyStartNotification: muteMode,
     isMuted: muteMode === 1,
     isStudying: activeSession !== null,

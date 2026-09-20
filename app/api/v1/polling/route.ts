@@ -1,6 +1,6 @@
 import { setDeviceTokenForSession } from "@/lib/apns";
 import {
-  getBlockedUserIds,
+  getBlockingUserIds,
   getFollowingUsersWithPresence,
   getStudySessionStatus,
   getUnreadNotificationCount,
@@ -31,16 +31,16 @@ export async function GET(request: Request) {
     await setDeviceTokenForSession(user.id, session.id, apnsToken);
   }
 
-  // ブロック関係にあるユーザーIDを取得し、通知とフォローの除外で共通利用
-  const blockedUserIds = await getBlockedUserIds(user.id);
+  // 自分がブロックしているユーザーIDを取得し、通知とフォローの除外で共通利用
+  const blockingUserIds = await getBlockingUserIds(user.id);
 
   // 1. 未読通知件数
   // 2. フォロー中ユーザー一覧（勉強中プレゼンス付与・ソート済み）
   // 3. 自身の勉強中セッション状態
   // を並列に取得
   const [unreadCount, users, studySession] = await Promise.all([
-    getUnreadNotificationCount(user.id, blockedUserIds),
-    getFollowingUsersWithPresence(user.id, user.id, blockedUserIds),
+    getUnreadNotificationCount(user.id, blockingUserIds),
+    getFollowingUsersWithPresence(user.id, user.id, blockingUserIds),
     getStudySessionStatus(user.id),
   ]);
 

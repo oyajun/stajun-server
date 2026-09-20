@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import {
   annotateUsers,
   apiError,
-  getBlockedUserIds,
+  getBlockingUserIds,
   parseIntParam,
   requireOnboardedUser,
 } from "@/lib/api";
@@ -33,17 +33,15 @@ export async function GET(
     return apiError(404, "POST_NOT_FOUND", "投稿が見つかりません。");
   }
 
-  // 投稿者とのブロック関係チェック
+  // 自分が投稿者をブロックしている場合はアクセス不可（相手からブロックされている場合は閲覧可能）
   if (post.userId !== user.id) {
-    const isBlocked = await prisma.block.findFirst({
+    const isBlocking = await prisma.block.findUnique({
       where: {
-        OR: [
-          { blockerId: user.id, blockedId: post.userId },
-          { blockerId: post.userId, blockedId: user.id },
-        ],
+        blockerId_blockedId: { blockerId: user.id, blockedId: post.userId },
       },
+      select: { id: true },
     });
-    if (isBlocked) {
+    if (isBlocking) {
       return apiError(404, "POST_NOT_FOUND", "投稿が見つかりません。");
     }
   }
@@ -60,7 +58,7 @@ export async function GET(
     max: Number.MAX_SAFE_INTEGER,
   });
 
-  const excludedIds = await getBlockedUserIds(user.id);
+  const excludedIds = await getBlockingUserIds(user.id);
 
   const total = await prisma.postLike.count({
     where: { postId: id, userId: { notIn: excludedIds } },

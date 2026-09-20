@@ -1,6 +1,12 @@
 import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
-import { annotateUsers, apiError, parseIntParam, requireOnboardedUser } from "@/lib/api";
+import {
+  annotateUsers,
+  apiError,
+  getBlockingUserIds,
+  parseIntParam,
+  requireOnboardedUser,
+} from "@/lib/api";
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
@@ -42,19 +48,9 @@ export async function GET(request: Request) {
     max: Number.MAX_SAFE_INTEGER,
   });
 
-  // ブロック関係にあるユーザー（自分がブロックしている、または自分をブロックしている）を除外
-  const blocks = await prisma.block.findMany({
-    where: {
-      OR: [{ blockerId: user.id }, { blockedId: user.id }],
-    },
-    select: { blockerId: true, blockedId: true },
-  });
-  const excludedIds = [
-    user.id,
-    ...blocks.map((b) =>
-      b.blockerId === user.id ? b.blockedId : b.blockerId
-    ),
-  ];
+  // 検索者がブロックしているユーザーを除外（被ブロック者からの検索ではブロック者はヒットする）
+  const blockingIds = await getBlockingUserIds(user.id);
+  const excludedIds = [user.id, ...blockingIds];
 
   // 完全一致グループと曖昧一致（完全一致を除いた部分一致）グループを分ける。
   // name の contains/equals 条件で NOT NULL＝オンボーディング済みのみが対象。

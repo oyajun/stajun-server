@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import {
   apiError,
+  getBlockingUserIds,
   isUserPro,
   isValidComment,
   isValidMinutes,
@@ -94,6 +95,18 @@ export async function GET(request: Request) {
     if (!targetId) {
       return apiError(404, "USER_NOT_FOUND", "ユーザーが見つかりません。");
     }
+    // 閲覧者が対象ユーザーをブロックしている場合、投稿を遮断して空配列を返す
+    if (targetId !== user.id) {
+      const isBlocked = await prisma.block.findUnique({
+        where: {
+          blockerId_blockedId: { blockerId: user.id, blockedId: targetId },
+        },
+        select: { id: true },
+      });
+      if (isBlocked) {
+        return Response.json({ posts: [], nextCursor: null });
+      }
+    }
     where = { userId: targetId };
   } else {
     // ホームタイムライン = 自分 + フォロー中
@@ -145,15 +158,34 @@ export async function GET(request: Request) {
     : [];
   const likedPostIds = new Set(myLikes.map((l) => l.postId));
 
+  // 閲覧者がブロックしているユーザーからのいいね件数を集計して減算
+  const blockingIds = await getBlockingUserIds(user.id);
+  let blockedLikeCountMap = new Map<string, number>();
+  if (blockingIds.length > 0 && postIds.length > 0) {
+    const blockedLikes = await prisma.postLike.groupBy({
+      by: ["postId"],
+      where: {
+        postId: { in: postIds },
+        userId: { in: blockingIds },
+      },
+      _count: { _all: true },
+    });
+    blockedLikeCountMap = new Map(
+      blockedLikes.map((bl) => [bl.postId, bl._count._all]),
+    );
+  }
+
   const result = posts.map((p) => {
     const a = authorById.get(p.userId);
+    const blockedCount = blockedLikeCountMap.get(p.id) ?? 0;
+    const effectiveLikeCount = Math.max(0, p._count.likes - blockedCount);
     return {
       id: p.id,
       userId: p.userId,
       minutes: p.minutes,
       comment: p.comment ?? null,
       createdAt: p.createdAt,
-      likeCount: p._count.likes,
+      likeCount: effectiveLikeCount,
       isLiked: likedPostIds.has(p.id),
       user: a
         ? {

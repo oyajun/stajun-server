@@ -1,6 +1,8 @@
 import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import {
+  apiError,
+  getBlockingUserIds,
   isUserPro,
   parseIntParam,
   requireOnboardedUser,
@@ -38,16 +40,8 @@ export async function GET(request: Request) {
     max: MAX_LIMIT,
   });
 
-  // ブロック関係にあるユーザーIDを取得して除外
-  const blocks = await prisma.block.findMany({
-    where: {
-      OR: [{ blockerId: user.id }, { blockedId: user.id }],
-    },
-    select: { blockerId: true, blockedId: true },
-  });
-  const blockedUserIds = blocks.map((b) =>
-    b.blockerId === user.id ? b.blockedId : b.blockerId,
-  );
+  // 自分がブロックしているユーザーIDを取得して除外
+  const blockedUserIds = await getBlockingUserIds(user.id);
 
   const where: Prisma.NotificationWhereInput = {
     userId: user.id,
