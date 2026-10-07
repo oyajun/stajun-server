@@ -104,6 +104,34 @@
       },
       "versions": [
         {
+          "version": "1.7.3",
+          "buildVersion": "2",
+          "date": "2026-09-26",
+          "localizedDescription": "- Added support for iPhone Duo.\n- Other minor bug fixes and improvements.",
+          "localizedDescriptions": {
+            "en": "- Added support for iPhone Duo.\n- Other minor bug fixes and improvements.",
+            "ja": "iPhone Duoに対応\nその他の細かな修正",
+            "ko": "- iPhone Duo 지원 추가.\n- 기타 경미한 버그 수정 및 개선."
+          },
+          "downloadURL": "https://junjun.oyajun.com/altstore/adp/abd240c9-2569-449a-b975-4a10522aa24d/manifest.json",
+          "size": 7143490,
+          "minOSVersion": "26.0",
+          "assetURLs": {
+            "08e39825-460a-3b72-9791-eb75aaa8e31e": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/08e39825-460a-3b72-9791-eb75aaa8e31e.ipa",
+            "2df199bc-023e-34fd-b55b-341b8fa40e05": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/2df199bc-023e-34fd-b55b-341b8fa40e05.ipa",
+            "423ec995-13b4-3213-9fe7-072132cd73f8": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/423ec995-13b4-3213-9fe7-072132cd73f8.ipa",
+            "6c1fee4d-5b3f-3dbd-8ecb-9ca52d41f3bc": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/6c1fee4d-5b3f-3dbd-8ecb-9ca52d41f3bc.ipa",
+            "6e4a77ff-82b5-34d2-a98a-5e6505a57760": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/6e4a77ff-82b5-34d2-a98a-5e6505a57760.ipa",
+            "792c7b77-809e-31ba-b9ed-062466ad7ba7": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/792c7b77-809e-31ba-b9ed-062466ad7ba7.ipa",
+            "7cc90f23-49c7-38eb-a1bb-4768e47168c0": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/7cc90f23-49c7-38eb-a1bb-4768e47168c0.ipa",
+            "d332944f-e571-311f-ab50-6f11c1723e88": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/d332944f-e571-311f-ab50-6f11c1723e88.ipa",
+            "manifest": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/manifest.json",
+            "signature": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/signature",
+            "8f7d565e-b313-35d6-9d27-c7f9b4a419a3": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/8f7d565e-b313-35d6-9d27-c7f9b4a419a3.ipa",
+            "94fd7921-ac49-3983-b69f-12115fd8159c": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.3/94fd7921-ac49-3983-b69f-12115fd8159c.ipa"
+          }
+        },
+        {
           "version": "1.7.2",
           "buildVersion": "2",
           "date": "2026-09-17",
