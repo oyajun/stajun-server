@@ -2,6 +2,7 @@
   command = "npm run build"
 
 [build.environment]
+  NODE_VERSION = "24"
   SECRETS_SCAN_ENABLED = "false"
   SECRETS_SCAN_OMIT_PATHS = ".open-next/, .netlify/, .next/"
 
