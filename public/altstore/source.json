@@ -104,6 +104,28 @@
       },
       "versions": [
         {
+          "version": "1.7.4",
+          "buildVersion": "1",
+          "date": "2026-11-06",
+          "localizedDescription": "- Minor bug fixes and performance improvements.",
+          "localizedDescriptions": {
+            "en": "- Minor bug fixes and performance improvements.",
+            "ja": "細かな修正とパフォーマンスの改善",
+            "ko": "- 경미한 버그 수정 및 성능 개선."
+          },
+          "downloadURL": "https://junjun.oyajun.com/altstore/adp/24b3a731-b52c-4db4-99be-dc41db0df02c/manifest.json",
+          "size": 7167718,
+          "minOSVersion": "26.0",
+          "assetURLs": {
+            "675dd837-b536-3180-b168-99cc4ce22e3c": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.4/675dd837-b536-3180-b168-99cc4ce22e3c.ipa",
+            "7a08d7ee-b5f1-3de2-b379-5edc5b68101b": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.4/7a08d7ee-b5f1-3de2-b379-5edc5b68101b.ipa",
+            "manifest": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.4/manifest.json",
+            "signature": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.4/signature",
+            "4e3db135-bd88-3250-8c68-813ec2175499": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.4/4e3db135-bd88-3250-8c68-813ec2175499.ipa",
+            "d19e8b71-198d-38df-a712-bbc832e19832": "https://github.com/oyajun/stajun-ios/releases/download/v1.7.4/d19e8b71-198d-38df-a712-bbc832e19832.ipa"
+          }
+        },
+        {
           "version": "1.7.3",
           "buildVersion": "2",
           "date": "2026-09-26",
