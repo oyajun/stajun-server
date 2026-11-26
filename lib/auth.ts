@@ -12,6 +12,7 @@ export const auth = betterAuth({
   appName: "JunJun",
   session: {
     expiresIn: 60 * 60 * 24 * 400, // 400日
+    updateAge: 60 * 60 * 24, // 1日（前回更新から1日以上経過してアクセスされると有効期限を400日先に自動延長）
   },
   databaseHooks: {
     user: {

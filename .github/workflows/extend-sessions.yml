@@ -1,0 +1,23 @@
+name: Extend Sessions
+
+on:
+  schedule:
+    # 毎日 JST 03:00 (UTC 18:00) に実行
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+jobs:
+  extend-sessions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call extend-sessions cron endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "Error: CRON_SECRET is not set in GitHub Actions secrets." >&2
+            exit 1
+          fi
+          curl --fail-with-body -sS -X POST \
+            "https://junjun.oyajun.com/api/cron/extend-sessions" \
+            -H "Authorization: Bearer ${CRON_SECRET}"
